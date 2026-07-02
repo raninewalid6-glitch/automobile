@@ -7,8 +7,12 @@ import {
 } from "react-router-dom";
 import Home from "./pages/home";
 import Cars from "./pages/car";
+import Services from "./pages/services";
+import About from "./pages/about";
+import Contact from "./pages/contact";
 import AdminLayout from "./admin/layout/AdminLayout";
 import AdminLoginPage from "./admin/pages/AdminLoginPage";
+import RequireAdminAuth from "./admin/components/RequireAdminAuth";
 import DashboardPage from "./admin/pages/DashboardPage";
 import CarsPage from "./admin/pages/CarsPage";
 import CarFormPage from "./admin/pages/CarFormPage";
@@ -50,10 +54,20 @@ function App() {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/cars" element={<Cars />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
         </Route>
         {/* Route /login supprimée — remplacée par le modal */}
         <Route path="/admin/login" element={<AdminLoginPage />} />
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route
+          path="/admin"
+          element={
+            <RequireAdminAuth>
+              <AdminLayout />
+            </RequireAdminAuth>
+          }
+        >
           <Route index element={<DashboardPage />} />
           <Route path="cars" element={<CarsPage />} />
           <Route path="cars/new" element={<CarFormPage />} />

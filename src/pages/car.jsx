@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { cars } from "../data/carsdata";
 import React from "react";
 
@@ -13,15 +13,12 @@ import CarDetailsModal from "../components/detailsmodal";
 import { useAuth } from "../context/userContext";
 
 export default function Cars() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedBrand, setSelectedBrand] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [reservationData, setReservationData] = useState(null);
@@ -34,14 +31,14 @@ export default function Cars() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsCar, setDetailsCar] = useState(null);
 
-  const filteredCars = cars.filter((car) => {
+  const filteredCars = useMemo(() => cars.filter((car) => {
     if (selectedCategory !== "all" && car.category !== selectedCategory) return false;
     if (selectedBrand !== "all" && car.brand !== selectedBrand) return false;
     if (priceRange === "low" && car.price > 150000) return false;
     if (priceRange === "mid" && (car.price < 150000 || car.price > 200000)) return false;
     if (priceRange === "high" && car.price < 200000) return false;
     return true;
-  });
+  }), [selectedCategory, selectedBrand, priceRange]);
 
   const brands = [...new Set(cars.map((car) => car.brand))];
   const categories = [...new Set(cars.map((car) => car.category))];
@@ -67,12 +64,7 @@ export default function Cars() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
-      <Navbar
-        isLoggedIn={isLoggedIn}
-        setIsLoggedIn={setIsLoggedIn}
-        setCurrentUser={setCurrentUser}
-        setShowLoginModal={setShowLoginModal}
-      />
+      <Navbar setShowLoginModal={setShowLoginModal} />
 
       {/* Hero */}
       <section className="relative pt-24 sm:pt-32 pb-8 sm:pb-12 px-4 sm:px-6">
@@ -103,13 +95,12 @@ export default function Cars() {
       <Card
         filteredCars={filteredCars}
         handleReserveClick={handleReserveClick}
+        onShowDetails={handleShowDetails}
       />
 
       <Connexion
         showLoginModal={showLoginModal}
         setShowLoginModal={setShowLoginModal}
-        setIsLoggedIn={setIsLoggedIn}
-        setCurrentUser={setCurrentUser}
         selectedCar={selectedCar}
         setShowReservationModal={setShowReservationModal}
       />
@@ -125,7 +116,6 @@ export default function Cars() {
         showReservationModal={showReservationModal}
         setShowReservationModal={setShowReservationModal}
         selectedCar={selectedCar}
-        currentUser={currentUser}
         setShowPaymentModal={setShowPaymentModal}
         setReservationData={setReservationData}
         setTotalPrice={setTotalPrice}

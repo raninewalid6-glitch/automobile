@@ -471,7 +471,7 @@ export default function Home() {
                 </div>
               </div>
             </footer>
-        )
+        
 
       {/* Modal Car Details */}
       <CarDetailsModal

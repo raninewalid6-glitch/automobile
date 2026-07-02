@@ -41,13 +41,13 @@ const options = {
 function Field({ label, children }) {
   return (
     <label className="space-y-2">
-      <span className="text-sm font-semibold text-gray-300">{label}</span>
+      <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">{label}</span>
       {children}
     </label>
   );
 }
 
-const inputClass = "w-full rounded-2xl border border-white/10 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-red-500/50";
+const inputClass = "w-full rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:border-red-500/50";
 
 export default function CarFormPage() {
   const [form, setForm] = useState(defaultCar);
@@ -75,29 +75,29 @@ export default function CarFormPage() {
 
   return (
     <div className="space-y-7">
-      <section className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/30 lg:p-8">
-        <Link to="/admin/cars" className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white">
+      <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/30 lg:p-8">
+        <Link to="/admin/cars" className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
           <ArrowLeft className="h-4 w-4" /> Retour aux voitures
         </Link>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="mb-3 inline-flex rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-sm font-bold text-orange-200">
+            <p className="mb-3 inline-flex rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-sm font-bold text-orange-700 dark:text-orange-200">
               Formulaire complet mock
             </p>
-            <h2 className="text-3xl font-black tracking-tight text-white lg:text-5xl">Créer / modifier une voiture</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-400">
+            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">Créer / modifier une voiture</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-500 dark:text-gray-400">
               Tous les champs du modèle voiture sont présents pour préparer la future connexion API.
             </p>
           </div>
-          <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-400">
+          <p className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
             Exemple existant: {adminCars[0].id} · {adminCars[0].title}
           </p>
         </div>
       </section>
 
       <form className="space-y-6" onSubmit={handleSubmit}>
-        <section className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-          <h3 className="text-xl font-bold text-white">Identité & caractéristiques</h3>
+        <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Identité & caractéristiques</h3>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <Field label="ID">
               <input className={inputClass} value={form.id} onChange={(event) => updateField("id", event.target.value)} />
@@ -142,14 +142,14 @@ export default function CarFormPage() {
               <input className={inputClass} value={form.plateNumber} placeholder="DJ-0000-A" onChange={(event) => updateField("plateNumber", event.target.value)} />
             </Field>
           </div>
-          <label className="mt-5 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-gray-300">
+          <label className="mt-5 flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
             <input type="checkbox" checked={form.airConditioning} onChange={(event) => updateField("airConditioning", event.target.checked)} />
             Climatisation disponible
           </label>
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-          <h3 className="text-xl font-bold text-white">Localisation & owner</h3>
+        <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Localisation & owner</h3>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <Field label="Ville">
               <select className={inputClass} value={form.city} onChange={(event) => updateField("city", event.target.value)}>
@@ -165,8 +165,8 @@ export default function CarFormPage() {
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-          <h3 className="text-xl font-bold text-white">Publication, pricing & garanties</h3>
+        <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Publication, pricing & garanties</h3>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <Field label="Statut">
               <select className={inputClass} value={form.status} onChange={(event) => updateField("status", event.target.value)}>
@@ -190,21 +190,21 @@ export default function CarFormPage() {
             </Field>
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
-            <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-gray-300">
+            <label className="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
               <input type="checkbox" checked={form.isForRent} onChange={(event) => updateField("isForRent", event.target.checked)} />
               Disponible à la location
             </label>
-            <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-gray-300">
+            <label className="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
               <input type="checkbox" checked={form.isForSale} onChange={(event) => updateField("isForSale", event.target.checked)} />
               Disponible à la vente
             </label>
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
+        <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
           <div className="flex items-center justify-between gap-3">
-            <h3 className="text-xl font-bold text-white">Photos</h3>
-            <button type="button" className="inline-flex items-center gap-2 rounded-2xl border border-white/10 px-4 py-2 text-sm font-bold text-gray-300 hover:text-white" onClick={addImage}>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Photos</h3>
+            <button type="button" className="inline-flex items-center gap-2 rounded-2xl border border-black/10 dark:border-white/10 px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={addImage}>
               <ImagePlus className="h-4 w-4" /> Ajouter une URL
             </button>
           </div>
@@ -217,10 +217,10 @@ export default function CarFormPage() {
           </div>
         </section>
 
-        {savedMessage && <p className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-bold text-emerald-300">{savedMessage}</p>}
+        {savedMessage && <p className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-300">{savedMessage}</p>}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <Link to="/admin/cars" className="rounded-2xl border border-white/10 px-5 py-3 text-center text-sm font-bold text-gray-300 hover:text-white">Annuler</Link>
+          <Link to="/admin/cars" className="rounded-2xl border border-black/10 dark:border-white/10 px-5 py-3 text-center text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Annuler</Link>
           <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-600/25">
             <Save className="h-5 w-5" /> Enregistrer mock
           </button>

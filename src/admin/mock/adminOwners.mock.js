@@ -5,9 +5,9 @@ export const ownerStatusLabels = {
 };
 
 export const ownerStatusStyles = {
-  active: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-  inactive: "border-slate-500/30 bg-slate-500/10 text-slate-300",
-  pending: "border-orange-500/30 bg-orange-500/10 text-orange-300",
+  active: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  inactive: "border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-300",
+  pending: "border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300",
 };
 
 export const purchaseRequestStatusLabels = {

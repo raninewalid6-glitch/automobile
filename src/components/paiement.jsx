@@ -20,7 +20,7 @@ function Paiement({
 
   const walletOptions = [
     { id: "waafi", name: "Waafi", color: "from-green-600 to-green-500" },
-   ,
+    { id: "dmoney", name: "D-Money", color: "from-orange-600 to-orange-500" },
   ];
 
   const formatCardNumber = (value) => {

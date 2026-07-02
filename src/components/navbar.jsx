@@ -1,12 +1,21 @@
 import { useAuth } from "../context/userContext";
 import { useNavigate, Link, useLocation } from "react-router-dom"; // ← ajoute useLocation
-import { Menu, User } from "lucide-react";
-import React from "react";
+import { Menu, User, X } from "lucide-react";
+import React, { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
+
+const navLinks = [
+  { to: "/", label: "Home" },
+  { to: "/cars", label: "Nos Voitures" },
+  { to: "/services", label: "Services" },
+  { to: "/about", label: "About" },
+  { to: "/contact", label: "Contact" },
+];
 
 function Navbar({ setShowLoginModal }) {
   const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation(); // ← récupère le pathname actuel
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Retourne les classes selon si le lien est actif ou non
   const navLinkClass = (path) =>
@@ -32,11 +41,11 @@ function Navbar({ setShowLoginModal }) {
 
           {/* Nav links */}
           <div className="hidden lg:flex items-center space-x-10">
-            <Link to="/" className={navLinkClass("/")}>Home</Link>
-            <Link to="/cars" className={navLinkClass("/cars")}>Nos Voitures</Link>
-            <Link to="/services" className={navLinkClass("/services")}>Services</Link>
-            <Link to="/about" className={navLinkClass("/about")}>About</Link>
-            <Link to="/contact" className={navLinkClass("/contact")}>Contact</Link>
+            {navLinks.map((link) => (
+              <Link key={link.to} to={link.to} className={navLinkClass(link.to)}>
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           {/* Auth + ThemeToggle */}
@@ -63,12 +72,44 @@ function Navbar({ setShowLoginModal }) {
                 <span>Se connecter</span>
               </button>
             )}
-            <button className="lg:hidden text-gray-700 dark:text-gray-300">
-              <Menu className="w-6 h-6" />
+            <button
+              className="lg:hidden text-gray-700 dark:text-gray-300"
+              onClick={() => setIsMobileMenuOpen((open) => !open)}
+              aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
 
         </div>
+
+        {/* Menu mobile */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden border-t border-gray-200 dark:border-gray-800 py-4 space-y-3">
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block px-2 py-2 ${navLinkClass(link.to)}`}
+              >
+                {link.label}
+              </Link>
+            ))}
+            {!isAuthenticated && (
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setShowLoginModal(true);
+                }}
+                className="flex items-center space-x-2 px-2 py-2 w-full text-left font-semibold text-red-600 dark:text-red-400"
+              >
+                <User className="w-4 h-4" />
+                <span>Se connecter</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );

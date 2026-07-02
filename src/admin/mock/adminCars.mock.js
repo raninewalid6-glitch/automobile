@@ -189,8 +189,8 @@ export const carStatusLabels = {
 };
 
 export const carStatusStyles = {
-  active: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-  inactive: "border-slate-500/30 bg-slate-500/10 text-slate-300",
-  maintenance: "border-orange-500/30 bg-orange-500/10 text-orange-300",
-  sold: "border-red-500/30 bg-red-500/10 text-red-300",
+  active: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  inactive: "border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-300",
+  maintenance: "border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300",
+  sold: "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300",
 };

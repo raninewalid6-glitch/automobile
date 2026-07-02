@@ -6,8 +6,8 @@ export const receiptTypeLabels = {
 };
 
 export const receiptTypeStyles = {
-  BOOKING: "border-blue-500/30 bg-blue-500/10 text-blue-300",
-  PURCHASE: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+  BOOKING: "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  PURCHASE: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
 };
 
 export const receiptPaymentMethods = ["WAAFI", "DMONEY", "MASTERCARD", "CASH", "BANK_TRANSFER"];

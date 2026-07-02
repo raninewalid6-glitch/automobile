@@ -1,7 +1,26 @@
 import { Check, Star } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 
-function Card({ filteredCars, handleReserveClick }) {
+const PAGE_SIZE = 6;
+
+function Card({ filteredCars, handleReserveClick, onShowDetails }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [previousFilteredCars, setPreviousFilteredCars] = useState(filteredCars);
+
+  // Revient à la page 1 quand la liste filtrée change (recherche/filtres),
+  // ajusté pendant le rendu plutôt que dans un effect pour éviter un rendu en cascade.
+  if (filteredCars !== previousFilteredCars) {
+    setPreviousFilteredCars(filteredCars);
+    setCurrentPage(1);
+  }
+
+  const totalPages = Math.max(1, Math.ceil(filteredCars.length / PAGE_SIZE));
+
+  const paginatedCars = filteredCars.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
   return (
     <section className="py-12 px-6">
       <div className="max-w-7xl mx-auto">
@@ -19,7 +38,7 @@ function Card({ filteredCars, handleReserveClick }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCars.map((car) => (
+          {paginatedCars.map((car) => (
             <div key={car.id} className="group relative">
               <div className="bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-red-500/50 transition-all duration-300">
                 <div className="relative h-56 overflow-hidden">
@@ -63,7 +82,10 @@ function Card({ filteredCars, handleReserveClick }) {
                     <span className="text-xs text-gray-500 dark:text-gray-400">{car.brand}</span>
                   </div>
 
-                  <h3 className="text-xl font-bold mb-4 group-hover:text-red-500 transition">
+                  <h3
+                    onClick={() => onShowDetails(car)}
+                    className="text-xl font-bold mb-4 cursor-pointer group-hover:text-red-500 transition"
+                  >
                     {car.name}
                   </h3>
 
@@ -96,7 +118,7 @@ function Card({ filteredCars, handleReserveClick }) {
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-end">
                     <div>
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Prix d'achat</div>
                       <div className="text-2xl font-bold text-red-500">
@@ -104,18 +126,26 @@ function Card({ filteredCars, handleReserveClick }) {
                       </div>
                     </div>
 
-                    {car.available ? (
+                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleReserveClick(car)}
-                        className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full text-sm font-semibold hover:shadow-lg hover:shadow-red-500/50 transition"
+                        onClick={() => onShowDetails(car)}
+                        className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-full text-sm font-semibold text-gray-700 dark:text-gray-300 hover:border-red-500 hover:text-red-500 transition"
                       >
-                        Réserver
+                        Détails
                       </button>
-                    ) : (
-                      <button className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-full text-sm font-semibold cursor-not-allowed opacity-50">
-                        Indisponible
-                      </button>
-                    )}
+                      {car.available ? (
+                        <button
+                          onClick={() => handleReserveClick(car)}
+                          className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full text-sm font-semibold hover:shadow-lg hover:shadow-red-500/50 transition"
+                        >
+                          Réserver
+                        </button>
+                      ) : (
+                        <button className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-full text-sm font-semibold cursor-not-allowed opacity-50">
+                          Indisponible
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -123,23 +153,37 @@ function Card({ filteredCars, handleReserveClick }) {
           ))}
         </div>
 
-        <div className="flex justify-center items-center space-x-2 mt-12">
-          <button className="px-4 py-2 bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-lg hover:bg-black/20 dark:hover:bg-white/20 transition">
-            Précédent
-          </button>
-          <button className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold">
-            1
-          </button>
-          <button className="px-4 py-2 bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-lg hover:bg-black/20 dark:hover:bg-white/20 transition">
-            2
-          </button>
-          <button className="px-4 py-2 bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-lg hover:bg-black/20 dark:hover:bg-white/20 transition">
-            3
-          </button>
-          <button className="px-4 py-2 bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-lg hover:bg-black/20 dark:hover:bg-white/20 transition">
-            Suivant
-          </button>
-        </div>
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center space-x-2 mt-12">
+            <button
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-lg hover:bg-black/20 dark:hover:bg-white/20 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-black/10 dark:disabled:hover:bg-white/10"
+            >
+              Précédent
+            </button>
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={
+                  page === currentPage
+                    ? "px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold"
+                    : "px-4 py-2 bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-lg hover:bg-black/20 dark:hover:bg-white/20 transition"
+                }
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-lg hover:bg-black/20 dark:hover:bg-white/20 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-black/10 dark:disabled:hover:bg-white/10"
+            >
+              Suivant
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
