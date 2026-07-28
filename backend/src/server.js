@@ -33,6 +33,11 @@ app.use(
 );
 app.use(express.json());
 
+// Page d'accueil de l'API (utile pour vérifier que le serveur est en ligne)
+app.get("/", (_req, res) => {
+  res.json({ name: "API DjibDrive", status: "en ligne", health: "/api/health" });
+});
+
 // Vérifie que l'API et la base répondent
 app.get("/api/health", async (_req, res) => {
   try {
