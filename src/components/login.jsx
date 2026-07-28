@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { X, User } from "lucide-react";
-import Userdata from "../data/Userdata";
 import { useAuth } from "../context/userContext";
 
 function Connexion({
@@ -9,53 +8,52 @@ function Connexion({
   setShowReservationModal,
 }) {
   const [isRegistering, setIsRegistering] = useState(false);
-  const { login } = useAuth();
+  const { login, register } = useAuth();
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [registerForm, setRegisterForm] = useState({
     nom: "", prenom: "", email: "", telephone: "", password: "", confirmPassword: "",
   });
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const inputClass = "w-full bg-white dark:bg-black/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors duration-300";
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const user = login(loginForm.email, loginForm.password);
-    if (user.success) {
-      setShowLoginModal(false);
-      setShowReservationModal(true);
+    setSubmitting(true);
+    setError("");
+    const result = await login(loginForm.email, loginForm.password);
+    setSubmitting(false);
+
+    if (!result.success) {
+      setError(result.message);
+      return;
     }
+    setShowLoginModal(false);
+    setShowReservationModal(true);
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     if (registerForm.password !== registerForm.confirmPassword) {
-      alert("Les mots de passe ne correspondent pas");
+      setError("Les mots de passe ne correspondent pas");
       return;
     }
 
-    const emailExists = Userdata.some(
-      (u) => u.email === registerForm.email.toLowerCase()
-    );
+    setSubmitting(true);
+    setError("");
+    const result = await register(registerForm);
+    setSubmitting(false);
 
-    if (emailExists) {
-      alert("Cet email existe déjà");
+    if (!result.success) {
+      setError(result.message);
       return;
     }
-
-    const newUser = {
-      id: Userdata.length + 1,
-      nom: registerForm.nom,
-      prenom: registerForm.prenom,
-      email: registerForm.email.toLowerCase(),
-      telephone: registerForm.telephone,
-      password: registerForm.password,
-    };
-
-    Userdata.push(newUser);
-    alert("Compte créé avec succès");
-    setIsRegistering(false);
+    // Inscription réussie = connecté directement
+    setShowLoginModal(false);
+    setShowReservationModal(true);
   };
 
   if (!showLoginModal) return null;
@@ -64,7 +62,7 @@ function Connexion({
     <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
       <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl max-w-md w-full border border-gray-200 dark:border-gray-700 relative transition-colors duration-300">
         <button
-          onClick={() => { setShowLoginModal(false); setIsRegistering(false); }}
+          onClick={() => { setShowLoginModal(false); setIsRegistering(false); setError(""); }}
           className="absolute top-4 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           <X className="w-6 h-6" />
@@ -101,16 +99,22 @@ function Connexion({
                 placeholder="Mot de passe"
                 required
               />
+              {error && (
+                <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-500">
+                  {error}
+                </p>
+              )}
               <button
                 type="submit"
-                className="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                disabled={submitting}
+                className="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                Se connecter
+                {submitting ? "Connexion..." : "Se connecter"}
               </button>
               <div className="text-center">
                 <button
                   type="button"
-                  onClick={() => setIsRegistering(true)}
+                  onClick={() => { setIsRegistering(true); setError(""); }}
                   className="text-red-500 hover:text-red-400 text-sm transition-colors"
                 >
                   Pas encore de compte ? Inscrivez-vous
@@ -172,17 +176,23 @@ function Connexion({
                 required
               />
 
+              {error && (
+                <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-500">
+                  {error}
+                </p>
+              )}
               <button
                 type="submit"
-                className="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                disabled={submitting}
+                className="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                S'inscrire
+                {submitting ? "Création du compte..." : "S'inscrire"}
               </button>
 
               <div className="text-center">
                 <button
                   type="button"
-                  onClick={() => setIsRegistering(false)}
+                  onClick={() => { setIsRegistering(false); setError(""); }}
                   className="text-red-500 hover:text-red-400 text-sm transition-colors"
                 >
                   Déjà un compte ? Connectez-vous

@@ -10,6 +10,7 @@ import Cars from "./pages/car";
 import Services from "./pages/services";
 import About from "./pages/about";
 import Contact from "./pages/contact";
+import MyReservations from "./pages/myreservations";
 import AdminLayout from "./admin/layout/AdminLayout";
 import AdminLoginPage from "./admin/pages/AdminLoginPage";
 import RequireAdminAuth from "./admin/components/RequireAdminAuth";
@@ -57,6 +58,7 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/mes-reservations" element={<MyReservations />} />
         </Route>
         {/* Route /login supprimée — remplacée par le modal */}
         <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -71,6 +73,7 @@ function App() {
           <Route index element={<DashboardPage />} />
           <Route path="cars" element={<CarsPage />} />
           <Route path="cars/new" element={<CarFormPage />} />
+          <Route path="cars/:id/edit" element={<CarFormPage />} />
           <Route path="cars/:id" element={<CarDetailsPage />} />
           <Route path="owners" element={<OwnersPage />} />
           <Route path="owners/:id" element={<OwnerDetailsPage />} />

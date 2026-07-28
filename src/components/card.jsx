@@ -91,10 +91,10 @@ function Card({ filteredCars, handleReserveClick, onShowDetails }) {
 
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     {[
-                      { label: "Puissance", value: car.specs.power },
-                      { label: "Vitesse Max", value: car.specs.speed },
-                      { label: "0-100 km/h", value: car.specs.time },
+                      { label: "Places", value: car.specs.seats },
+                      { label: "Portes", value: car.specs.doors },
                       { label: "Carburant", value: car.specs.fuel },
+                      { label: "Climatisation", value: car.specs.ac },
                     ].map((spec) => (
                       <div key={spec.label} className="bg-gray-100 dark:bg-black/50 rounded-lg p-3 transition-colors duration-300">
                         <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">{spec.label}</div>
@@ -106,7 +106,7 @@ function Card({ filteredCars, handleReserveClick, onShowDetails }) {
                   <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
                     <span>{car.year}</span>
                     <span>•</span>
-                    <span>{car.km.toLocaleString()} km</span>
+                    <span>{car.km != null ? `${car.km.toLocaleString()} km` : "km n/c"}</span>
                     <span>•</span>
                     <span>{car.transmission}</span>
                   </div>
@@ -114,7 +114,7 @@ function Card({ filteredCars, handleReserveClick, onShowDetails }) {
                   <div className="mb-3">
                     <div className="text-xs text-gray-500 dark:text-gray-400">Location</div>
                     <div className="text-sm font-semibold text-orange-500">
-                      {car.pricePerDay} FJ/jour
+                      {car.pricePerDay != null ? `${car.pricePerDay.toLocaleString()} FDJ/jour` : "Non proposée"}
                     </div>
                   </div>
 
@@ -122,7 +122,7 @@ function Card({ filteredCars, handleReserveClick, onShowDetails }) {
                     <div>
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Prix d'achat</div>
                       <div className="text-2xl font-bold text-red-500">
-                        {car.price.toLocaleString()} FDJ
+                        {car.price != null ? `${car.price.toLocaleString()} FDJ` : "—"}
                       </div>
                     </div>
 

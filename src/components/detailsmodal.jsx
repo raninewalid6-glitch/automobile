@@ -1,12 +1,37 @@
-import React from "react";
-import { X, Gauge, Zap, Settings, Fuel, Users, Check } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { X, Gauge, Zap, Settings, Fuel, Users, Check, ShoppingCart } from "lucide-react";
+import { useAuth } from "../context/userContext";
+import { apiFetch } from "../lib/api";
 
 export default function CarDetailsModal({
   showModal,
   setShowModal,
   selectedCar,
   onReserve,
+  onLoginRequired,
 }) {
+  const { isAuthenticated, token } = useAuth();
+  const [purchaseState, setPurchaseState] = useState({ sending: false, done: false, error: "" });
+
+  // Réinitialise l'état de la demande d'achat quand on change de voiture
+  useEffect(() => {
+    setPurchaseState({ sending: false, done: false, error: "" });
+  }, [selectedCar?.id]);
+
+  const handlePurchaseRequest = async () => {
+    if (!isAuthenticated) {
+      onLoginRequired?.();
+      return;
+    }
+    setPurchaseState({ sending: true, done: false, error: "" });
+    try {
+      await apiFetch("/purchases", { method: "POST", token, body: { carId: selectedCar.id } });
+      setPurchaseState({ sending: false, done: true, error: "" });
+    } catch (err) {
+      setPurchaseState({ sending: false, done: false, error: err.message });
+    }
+  };
+
   if (!showModal || !selectedCar) return null;
 
   return (
@@ -34,10 +59,10 @@ export default function CarDetailsModal({
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              {[0, 1, 2].map((i) => (
+              {(selectedCar.images?.length ? selectedCar.images : [selectedCar.image]).slice(0, 3).map((imageUrl, i) => (
                 <img
                   key={i}
-                  src={selectedCar.image}
+                  src={imageUrl}
                   alt=""
                   className="w-full h-24 object-cover rounded-lg opacity-70 hover:opacity-100 transition cursor-pointer border-2 border-transparent hover:border-red-500"
                 />
@@ -65,7 +90,7 @@ export default function CarDetailsModal({
                 <div>
                   <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Prix d'achat</div>
                   <div className="text-3xl font-bold text-red-500">
-                    {selectedCar.price.toLocaleString()} FDJ
+                    {selectedCar.price != null ? `${selectedCar.price.toLocaleString()} FDJ` : "—"}
                   </div>
                 </div>
                 {selectedCar.pricePerDay && (
@@ -90,8 +115,9 @@ export default function CarDetailsModal({
                   { icon: <Gauge className="w-5 h-5 text-red-500" />, label: "Puissance", value: selectedCar.specs.power },
                   { icon: <Zap className="w-5 h-5 text-red-500" />, label: "0-100 km/h", value: selectedCar.specs.time },
                   { icon: <Gauge className="w-5 h-5 text-red-500" />, label: "Vitesse Max", value: selectedCar.specs.speed },
-                  ...(selectedCar.specs.fuel ? [{ icon: <Fuel className="w-5 h-5 text-red-500" />, label: "Carburant", value: selectedCar.specs.fuel }] : []),
-                ].map((spec) => (
+                  { icon: <Fuel className="w-5 h-5 text-red-500" />, label: "Carburant", value: selectedCar.specs.fuel },
+                  { icon: <Users className="w-5 h-5 text-red-500" />, label: "Portes", value: selectedCar.specs.doors },
+                ].filter((spec) => spec.value != null).map((spec) => (
                   <div key={spec.label} className="bg-gray-100 dark:bg-black/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                     <div className="flex items-center space-x-2 mb-2">
                       {spec.icon}
@@ -154,16 +180,41 @@ export default function CarDetailsModal({
               </div>
             )}
 
-            {/* Bouton */}
-            <div className="mt-auto pt-6">
-              <button
-                onClick={onReserve}
-                className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-red-500/50 transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
-              >
-                <span>🚗</span>
-                <span>Réserver ce véhicule</span>
-              </button>
-              <p className="text-center text-gray-500 dark:text-gray-400 text-xs mt-3">
+            {/* Boutons */}
+            <div className="mt-auto pt-6 space-y-3">
+              {selectedCar.available && (
+                <button
+                  onClick={onReserve}
+                  className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-red-500/50 transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
+                >
+                  <span>🚗</span>
+                  <span>Réserver ce véhicule</span>
+                </button>
+              )}
+
+              {selectedCar.isForSale && !purchaseState.done && (
+                <button
+                  onClick={handlePurchaseRequest}
+                  disabled={purchaseState.sending}
+                  className="w-full py-4 border-2 border-red-500/60 text-red-500 rounded-xl font-bold text-lg hover:bg-red-500/10 transition flex items-center justify-center space-x-2 disabled:opacity-50"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  <span>{purchaseState.sending ? "Envoi de la demande..." : "Demander l'achat"}</span>
+                </button>
+              )}
+
+              {purchaseState.done && (
+                <p className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-600 dark:text-green-400 text-center">
+                  ✅ Demande d'achat envoyée ! Notre équipe vous contactera rapidement.
+                </p>
+              )}
+              {purchaseState.error && (
+                <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-500 text-center">
+                  {purchaseState.error}
+                </p>
+              )}
+
+              <p className="text-center text-gray-500 dark:text-gray-400 text-xs">
                 Réservation sécurisée • Annulation gratuite sous 24h
               </p>
             </div>

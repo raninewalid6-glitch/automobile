@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { AlertTriangle, CheckCircle2, X } from "lucide-react";
 import { paymentMethodLabels } from "../mock/adminPayments.mock";
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
+// Montants affichés en francs Djibouti
+const currencyFormatter = {
+  format: (value) => `${new Intl.NumberFormat("fr-FR").format(value ?? 0)} FDJ`,
+};
 
 export default function CashValidationDialog({ payment, open, onClose, onConfirm }) {
   const [note, setNote] = useState("");

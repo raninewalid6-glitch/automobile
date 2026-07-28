@@ -5,6 +5,14 @@ import { pool } from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import carsRoutes from "./routes/cars.routes.js";
 import adminCarsRoutes from "./routes/adminCars.routes.js";
+import bookingsRoutes from "./routes/bookings.routes.js";
+import adminBookingsRoutes from "./routes/adminBookings.routes.js";
+import adminStatsRoutes from "./routes/adminStats.routes.js";
+import adminOwnersRoutes from "./routes/adminOwners.routes.js";
+import purchasesRoutes from "./routes/purchases.routes.js";
+import adminPurchasesRoutes from "./routes/adminPurchases.routes.js";
+import adminPaymentsRoutes from "./routes/adminPayments.routes.js";
+import adminReceiptsRoutes from "./routes/adminReceipts.routes.js";
 
 const app = express();
 
@@ -38,6 +46,14 @@ app.get("/api/health", async (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/cars", carsRoutes);
 app.use("/api/admin/cars", adminCarsRoutes);
+app.use("/api/bookings", bookingsRoutes);
+app.use("/api/admin/bookings", adminBookingsRoutes);
+app.use("/api/admin/stats", adminStatsRoutes);
+app.use("/api/admin/owners", adminOwnersRoutes);
+app.use("/api/purchases", purchasesRoutes);
+app.use("/api/admin/purchases", adminPurchasesRoutes);
+app.use("/api/admin/payments", adminPaymentsRoutes);
+app.use("/api/admin/receipts", adminReceiptsRoutes);
 
 // 404 JSON pour les routes inconnues de l'API
 app.use("/api", (_req, res) => {

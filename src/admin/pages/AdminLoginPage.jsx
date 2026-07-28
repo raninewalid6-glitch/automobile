@@ -12,10 +12,13 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const result = login(email, password);
+    setLoading(true);
+    const result = await login(email, password);
+    setLoading(false);
 
     if (!result.success) {
       setError(result.message);
@@ -62,7 +65,7 @@ export default function AdminLoginPage() {
                 <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">Email professionnel</span>
                 <input
                   className="mt-2 w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-4 text-gray-900 dark:text-white outline-none transition placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:border-red-500/60"
-                  placeholder="admin@driveup.com"
+                  placeholder="admin@djibdrive.com"
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
@@ -87,7 +90,7 @@ export default function AdminLoginPage() {
               )}
               <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                 <span className="inline-flex items-center gap-2">
-                  <LockKeyhole className="h-4 w-4 text-orange-400" /> Accès mock uniquement
+                  <LockKeyhole className="h-4 w-4 text-orange-400" /> Connexion sécurisée
                 </span>
                 <Link to="/" className="hover:text-gray-900 dark:hover:text-white">
                   Retour site
@@ -95,9 +98,10 @@ export default function AdminLoginPage() {
               </div>
               <button
                 type="submit"
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-4 font-bold text-white shadow-lg shadow-red-600/25 transition hover:shadow-red-500/40"
+                disabled={loading}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-4 font-bold text-white shadow-lg shadow-red-600/25 transition hover:shadow-red-500/40 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Entrer dans le dashboard <ArrowRight className="h-5 w-5" />
+                {loading ? "Connexion..." : "Entrer dans le dashboard"} <ArrowRight className="h-5 w-5" />
               </button>
             </form>
           </section>

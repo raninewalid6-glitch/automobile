@@ -1,244 +1,215 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, BadgeDollarSign, Banknote, CalendarDays, CarFront, CheckCircle2, Mail, MapPin, Phone, ShieldOff, ShoppingCart, UserRound, WalletCards } from "lucide-react";
-import { adminOwners, ownerStatusLabels, ownerStatusStyles, purchaseRequestStatusLabels } from "../mock/adminOwners.mock";
+import { ArrowLeft, CalendarDays, CarFront, Eye, UserRound } from "lucide-react";
+import { apiFetch } from "../../lib/api";
+import { useAdminAuth } from "../context/AdminAuthContext";
+import { carStatusLabels, carStatusStyles } from "../lib/carOptions";
+import { bookingStatusLabels, bookingStatusStyles } from "../lib/bookingOptions";
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
+// Montants affichés en francs Djibouti
+const currencyFormatter = {
+  format: (value) => `${new Intl.NumberFormat("fr-FR").format(value ?? 0)} FDJ`,
+};
+
+const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
 });
 
-const numberFormatter = new Intl.NumberFormat("fr-FR");
-
-function InfoCard({ icon, label, value, helper }) {
-  const IconComponent = icon;
-
-  return (
-    <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-      <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
-        <IconComponent className="h-5 w-5 text-orange-700 dark:text-orange-300" />
-        <span className="text-sm font-semibold">{label}</span>
-      </div>
-      <p className="mt-3 text-2xl font-black text-gray-900 dark:text-white">{value}</p>
-      {helper && <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{helper}</p>}
-    </div>
-  );
+function formatDate(value) {
+  return dateFormatter.format(new Date(`${value}T00:00:00`));
 }
 
-function OwnerStatusBadge({ status }) {
-  return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${ownerStatusStyles[status] ?? ownerStatusStyles.inactive}`}>
-      {ownerStatusLabels[status] ?? status}
-    </span>
-  );
-}
-
-function EmptyState({ label }) {
-  return (
-    <div className="rounded-3xl border border-dashed border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] p-6 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">
-      {label}
-    </div>
-  );
+function getOfferType(car) {
+  if (car.isForRent && car.isForSale) return "Location + Vente";
+  if (car.isForRent) return "Location";
+  if (car.isForSale) return "Vente";
+  return "Non publié";
 }
 
 export default function OwnerDetailsPage() {
   const { id } = useParams();
-  const originalOwner = adminOwners.find((item) => item.id === id);
-  const [status, setStatus] = useState(originalOwner?.status ?? "inactive");
+  const { token } = useAdminAuth();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!originalOwner) {
+  useEffect(() => {
+    apiFetch(`/admin/owners/${id}`, { token })
+      .then(setData)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [id, token]);
+
+  if (loading) {
     return (
-      <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-8 text-center shadow-2xl shadow-black/30">
-        <h2 className="text-3xl font-black text-gray-900 dark:text-white">Propriétaire introuvable</h2>
-        <p className="mt-3 text-gray-500 dark:text-gray-400">Aucun propriétaire mock ne correspond à l'identifiant {id}.</p>
-        <Link to="/admin/owners" className="mt-6 inline-flex rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white">
-          Retour aux propriétaires
-        </Link>
-      </section>
+      <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">Chargement du propriétaire...</p>
     );
   }
 
-  const owner = { ...originalOwner, status };
-  const isActive = owner.status === "active";
+  if (!data) {
+    return (
+      <div className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-8 text-center shadow-2xl shadow-black/30">
+        <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-700 dark:text-red-300">Propriétaire introuvable</p>
+        <h2 className="mt-3 text-3xl font-black text-gray-900 dark:text-white">{error || `Aucun propriétaire ne correspond à ${id}`}</h2>
+        <Link className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 font-bold text-white" to="/admin/owners">
+          <ArrowLeft className="h-4 w-4" /> Retour aux propriétaires
+        </Link>
+      </div>
+    );
+  }
+
+  const { owner, cars, bookings } = data;
 
   return (
     <div className="space-y-7">
+      <Link className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400 transition hover:text-gray-900 dark:hover:text-white" to="/admin/owners">
+        <ArrowLeft className="h-4 w-4" /> Retour aux propriétaires
+      </Link>
+
       <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/30 lg:p-8">
-        <Link to="/admin/owners" className="inline-flex items-center gap-2 rounded-2xl border border-black/10 dark:border-white/10 px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white">
-          <ArrowLeft className="h-4 w-4" /> Retour aux propriétaires
-        </Link>
-
-        <div className="mt-7 grid gap-7 xl:grid-cols-[0.9fr_1.1fr] xl:items-end">
-          <div>
-            <OwnerStatusBadge status={owner.status} />
-            <h2 className="mt-5 text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">{owner.name}</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-500 dark:text-gray-400">{owner.notes}</p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">Gestionnaire</p>
-                <p className="mt-2 font-bold text-gray-900 dark:text-white">{owner.manager}</p>
-              </div>
-              <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">KYC</p>
-                <p className="mt-2 font-bold text-gray-900 dark:text-white">{owner.identityStatus}</p>
-              </div>
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-5">
+            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-red-600 to-orange-500">
+              <UserRound className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-4xl">{owner.name}</h2>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                {owner.email}{owner.phone ? ` · ${owner.phone}` : ""}{owner.city ? ` · ${owner.city}` : ""}
+              </p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Inscrit le {new Date(owner.joinedAt).toLocaleDateString("fr-FR")}
+              </p>
             </div>
           </div>
+        </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <button
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-3 text-sm font-black text-emerald-700 dark:text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={isActive}
-              onClick={() => setStatus("active")}
-            >
-              <CheckCircle2 className="h-5 w-5" /> Activer
-            </button>
-            <button
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm font-black text-red-700 dark:text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!isActive}
-              onClick={() => setStatus("inactive")}
-            >
-              <ShieldOff className="h-5 w-5" /> Désactiver
-            </button>
+        <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Voitures</p>
+            <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{owner.metrics.totalCars}</p>
+          </div>
+          <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Réservations</p>
+            <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{owner.metrics.reservations}</p>
+          </div>
+          <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-5">
+            <p className="text-sm text-emerald-700 dark:text-emerald-200">Revenus reversés</p>
+            <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(owner.metrics.revenue)}</p>
+          </div>
+          <div className="rounded-3xl border border-orange-500/20 bg-orange-500/10 p-5">
+            <p className="text-sm text-orange-700 dark:text-orange-200">Commission plateforme</p>
+            <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(owner.metrics.commission)}</p>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        <InfoCard icon={CarFront} label="Voitures" value={owner.cars.length} helper={`${owner.metrics.rentalCars} location · ${owner.metrics.saleCars} vente`} />
-        <InfoCard icon={CalendarDays} label="Réservations" value={numberFormatter.format(owner.metrics.reservations)} helper="Historique mock" />
-        <InfoCard icon={Banknote} label="Revenus" value={currencyFormatter.format(owner.metrics.revenue)} helper="Location + ventes" />
-        <InfoCard icon={BadgeDollarSign} label="Commission due" value={currencyFormatter.format(owner.metrics.commissionDue)} helper="À collecter" />
-      </section>
-
-      <section className="grid gap-7 xl:grid-cols-[0.85fr_1.15fr]">
-        <div className="space-y-7">
-          <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Profil complet</h3>
-            <div className="mt-5 flex items-center gap-4 rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-orange-500">
-                <UserRound className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <p className="text-lg font-black text-gray-900 dark:text-white">{owner.name}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Inscrit le {owner.joinedAt}</p>
-              </div>
-            </div>
-            <dl className="mt-5 grid gap-3">
-              {[
-                [Phone, "Téléphone", owner.phone],
-                [Mail, "Email", owner.email],
-                [MapPin, "Adresse", `${owner.address}, ${owner.city}`],
-              ].map(([IconComponent, label, value]) => (
-                <div key={label} className="flex items-start gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] px-4 py-3">
-                  {React.createElement(IconComponent, { className: "mt-1 h-5 w-5 text-orange-700 dark:text-orange-300" })}
-                  <div>
-                    <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">{label}</dt>
-                    <dd className="mt-1 font-bold text-gray-900 dark:text-white">{value}</dd>
-                  </div>
-                </div>
-              ))}
-            </dl>
-          </section>
-
-          <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Revenus & commission plateforme</h3>
-            <div className="mt-5 grid gap-4">
-              <InfoCard icon={WalletCards} label="Revenus propriétaire" value={currencyFormatter.format(owner.metrics.revenue)} helper={`Payout en attente: ${currencyFormatter.format(owner.metrics.payoutPending)}`} />
-              <InfoCard icon={BadgeDollarSign} label="Commission plateforme" value={currencyFormatter.format(owner.metrics.platformCommission)} helper={`Solde dû: ${currencyFormatter.format(owner.metrics.commissionDue)}`} />
-            </div>
-          </section>
+      <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
+        <div className="mb-5 flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-orange-500">
+            <CarFront className="h-5 w-5 text-white" />
+          </div>
+          <h3 className="text-xl font-black text-gray-900 dark:text-white">Ses voitures ({cars.length})</h3>
         </div>
 
-        <div className="space-y-7">
-          <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Voitures</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Parc associé au propriétaire.</p>
-              </div>
-              <span className="rounded-full border border-black/10 dark:border-white/10 px-3 py-1 text-xs font-bold text-gray-600 dark:text-gray-300">{owner.cars.length} véhicules</span>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px] text-left text-sm">
-                <thead className="text-gray-500 dark:text-gray-400">
-                  <tr className="border-b border-black/10 dark:border-white/10">
-                    <th className="py-4 font-semibold">Voiture</th>
-                    <th className="py-4 font-semibold">Type</th>
-                    <th className="py-4 font-semibold">Ville</th>
-                    <th className="py-4 font-semibold">Prix</th>
-                    <th className="py-4 font-semibold">Revenus</th>
-                    <th className="py-4 font-semibold">Statut</th>
+        {cars.length === 0 ? (
+          <p className="py-8 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">
+            Aucune voiture rattachée à ce propriétaire pour le moment.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[860px] text-left text-sm">
+              <thead className="text-gray-500 dark:text-gray-400">
+                <tr className="border-b border-black/10 dark:border-white/10">
+                  <th className="py-4 font-semibold">Voiture</th>
+                  <th className="py-4 font-semibold">Ville</th>
+                  <th className="py-4 font-semibold">Type</th>
+                  <th className="py-4 font-semibold">Location/jour</th>
+                  <th className="py-4 font-semibold">Prix vente</th>
+                  <th className="py-4 font-semibold">Revenus</th>
+                  <th className="py-4 font-semibold">Statut</th>
+                  <th className="py-4 text-right font-semibold">Voir</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cars.map((car) => (
+                  <tr key={car.id} className="border-b border-black/5 dark:border-white/5 text-gray-600 dark:text-gray-300 last:border-0">
+                    <td className="py-4 font-bold text-gray-900 dark:text-white">{car.title}</td>
+                    <td className="py-4">{car.city}</td>
+                    <td className="py-4">{getOfferType(car)}</td>
+                    <td className="py-4 font-semibold text-gray-900 dark:text-white">{car.rentPricePerDay ? currencyFormatter.format(car.rentPricePerDay) : "—"}</td>
+                    <td className="py-4 font-semibold text-gray-900 dark:text-white">{car.salePrice ? currencyFormatter.format(car.salePrice) : "—"}</td>
+                    <td className="py-4 font-semibold text-emerald-700 dark:text-emerald-300">{currencyFormatter.format(car.revenue)}</td>
+                    <td className="py-4">
+                      <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${carStatusStyles[car.status] ?? carStatusStyles.INACTIVE}`}>
+                        {carStatusLabels[car.status] ?? car.status}
+                      </span>
+                    </td>
+                    <td className="py-4 text-right">
+                      <Link to={`/admin/cars/${car.id}`} className="inline-flex rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white" title="Voir la voiture">
+                        <Eye className="h-4 w-4" />
+                      </Link>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {owner.cars.map((car) => (
-                    <tr key={car.id} className="border-b border-black/5 dark:border-white/5 text-gray-600 dark:text-gray-300 last:border-0">
-                      <td className="py-4">
-                        <p className="font-bold text-gray-900 dark:text-white">{car.title}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{car.id}</p>
-                      </td>
-                      <td className="py-4">{car.type}</td>
-                      <td className="py-4">{car.city}</td>
-                      <td className="py-4 font-semibold text-gray-900 dark:text-white">
-                        {car.rentPricePerDay ? `${currencyFormatter.format(car.rentPricePerDay)}/j` : "—"}
-                        {car.salePrice ? <span className="block text-xs text-orange-700 dark:text-orange-200">{currencyFormatter.format(car.salePrice)}</span> : null}
-                      </td>
-                      <td className="py-4 font-semibold text-gray-900 dark:text-white">{currencyFormatter.format(car.revenue)}</td>
-                      <td className="py-4">{car.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
-          <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Réservations récentes</h3>
-            <div className="mt-5 space-y-3">
-              {owner.reservations.length === 0 && <EmptyState label="Aucune réservation récente pour ce propriétaire." />}
-              {owner.reservations.map((reservation) => (
-                <div key={reservation.id} className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="font-black text-gray-900 dark:text-white">{reservation.customer}</p>
-                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{reservation.car} · {reservation.period}</p>
-                    </div>
-                    <div className="text-left sm:text-right">
-                      <p className="font-black text-gray-900 dark:text-white">{currencyFormatter.format(reservation.amount)}</p>
-                      <p className="mt-1 text-xs font-semibold text-orange-700 dark:text-orange-200">{reservation.status}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-            <div className="mb-5 flex items-center gap-3">
-              <ShoppingCart className="h-5 w-5 text-orange-700 dark:text-orange-300" />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Demandes d'achat</h3>
-            </div>
-            <div className="space-y-3">
-              {owner.purchaseRequests.length === 0 && <EmptyState label="Aucune demande d'achat ouverte." />}
-              {owner.purchaseRequests.map((request) => (
-                <div key={request.id} className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="font-black text-gray-900 dark:text-white">{request.customer}</p>
-                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{request.car}</p>
-                    </div>
-                    <div className="text-left sm:text-right">
-                      <p className="font-black text-gray-900 dark:text-white">{currencyFormatter.format(request.budget)}</p>
-                      <p className="mt-1 text-xs font-semibold text-orange-700 dark:text-orange-200">{purchaseRequestStatusLabels[request.status] ?? request.status}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+      <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
+        <div className="mb-5 flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-orange-500">
+            <CalendarDays className="h-5 w-5 text-white" />
+          </div>
+          <h3 className="text-xl font-black text-gray-900 dark:text-white">Dernières réservations ({bookings.length})</h3>
         </div>
+
+        {bookings.length === 0 ? (
+          <p className="py-8 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">
+            Aucune réservation sur les voitures de ce propriétaire.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[860px] text-left text-sm">
+              <thead className="text-gray-500 dark:text-gray-400">
+                <tr className="border-b border-black/10 dark:border-white/10">
+                  <th className="py-4 font-semibold">Référence</th>
+                  <th className="py-4 font-semibold">Client</th>
+                  <th className="py-4 font-semibold">Voiture</th>
+                  <th className="py-4 font-semibold">Période</th>
+                  <th className="py-4 font-semibold">Total</th>
+                  <th className="py-4 font-semibold">Part owner</th>
+                  <th className="py-4 font-semibold">Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking) => (
+                  <tr key={booking.id} className="border-b border-black/5 dark:border-white/5 text-gray-600 dark:text-gray-300 last:border-0">
+                    <td className="py-4 font-black text-gray-900 dark:text-white">
+                      <Link to={`/admin/bookings/${booking.id}`} className="hover:text-red-500">
+                        {booking.id.slice(0, 8).toUpperCase()}
+                      </Link>
+                    </td>
+                    <td className="py-4">{booking.client}</td>
+                    <td className="py-4">{booking.car}</td>
+                    <td className="py-4">{formatDate(booking.startDate)} → {formatDate(booking.endDate)}</td>
+                    <td className="py-4 font-semibold text-gray-900 dark:text-white">{currencyFormatter.format(booking.totalAmount)}</td>
+                    <td className="py-4 font-semibold text-emerald-700 dark:text-emerald-300">{currencyFormatter.format(booking.ownerAmount)}</td>
+                    <td className="py-4">
+                      <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${bookingStatusStyles[booking.status] ?? bookingStatusStyles.PENDING}`}>
+                        {bookingStatusLabels[booking.status] ?? booking.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );

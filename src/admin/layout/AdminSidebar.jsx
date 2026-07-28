@@ -43,7 +43,7 @@ function SidebarContent({ onNavigate, showCloseButton = false }) {
             D
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900 dark:text-white">DriveUp Admin</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">DjibDrive Admin</p>
             <p className="text-xs font-semibold tracking-[0.25em] text-gray-500 dark:text-gray-400">SuperAdmin</p>
           </div>
         </div>

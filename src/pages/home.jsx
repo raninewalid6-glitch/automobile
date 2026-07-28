@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -21,6 +21,27 @@ import {
 import { useNavigate } from "react-router-dom";
 import CarDetailsModal from "../components/detailsmodal";
 import Connexion from "../components/login";
+import HeroCarousel from "../components/herocarousel";
+import { fetchPublicCars } from "../lib/publicCars";
+
+// Slides affichées si l'API est éteinte ou si aucune voiture n'a de photo
+const defaultHeroSlides = [
+  {
+    image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1200",
+    title: "Des véhicules d'exception",
+    subtitle: "Location & vente à Djibouti",
+  },
+  {
+    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200",
+    title: "Performances premium",
+    subtitle: "Réservez en quelques clics",
+  },
+  {
+    image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1200",
+    title: "Un service 5 étoiles",
+    subtitle: "Garantie et accompagnement inclus",
+  },
+];
 
 export default function Home() {
   const navigate = useNavigate();
@@ -29,6 +50,30 @@ export default function Home() {
   const [selectedCar, setSelectedCar] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showReservationModal, setShowReservationModal] = useState(false);
+  const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
+
+  // Remplit le carrousel avec les vraies voitures du catalogue (max 5)
+  useEffect(() => {
+    fetchPublicCars()
+      .then((cars) => {
+        const slides = cars
+          .filter((car) => car.image)
+          .slice(0, 5)
+          .map((car) => ({
+            image: car.image,
+            title: car.name,
+            subtitle: car.pricePerDay != null
+              ? `${car.pricePerDay.toLocaleString("fr-FR")} FDJ/jour`
+              : car.price != null
+                ? `${car.price.toLocaleString("fr-FR")} FDJ`
+                : "",
+          }));
+        if (slides.length > 0) setHeroSlides(slides);
+      })
+      .catch(() => {
+        // API éteinte : on garde les slides par défaut
+      });
+  }, []);
 
   const featuredCars = [
     {
@@ -82,53 +127,45 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
 
-      {/* Hero Section */}
-      <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 via-transparent to-orange-600/10"></div>
-
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div>
-              <div className="inline-block px-4 py-2 bg-red-600/20 border border-red-600/30 rounded-full mb-6">
-                <span className="text-red-500 dark:text-red-400 text-sm font-medium">
-                  🔥 New Collection 2024
-                </span>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-                Drive Your
-                <span className="block bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                  Dream Car
-                </span>
-              </h1>
-
-              <p className="text-base sm:text-xl text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-                Découvrez notre collection exclusive de véhicules premium. Des
-                performances exceptionnelles, un luxe incomparable.
-              </p>
-
-              <div className="flex flex-wrap gap-3 sm:gap-4 mb-8 sm:mb-12">
-                <button className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full font-semibold hover:shadow-lg hover:shadow-red-500/50 transition text-sm sm:text-base">
-                  Voir la Collection
-                </button>
-                <button className="px-6 sm:px-8 py-3 sm:py-4 bg-black/10 dark:bg-white/10 backdrop-blur-sm border border-black/20 dark:border-white/20 rounded-full font-semibold hover:bg-black/20 dark:hover:bg-white/20 transition text-sm sm:text-base">
-                  Prendre RDV
-                </button>
-              </div>
+      {/* Hero Section : carrousel plein écran avec le texte par-dessus */}
+      <HeroCarousel slides={heroSlides}>
+        <div className="max-w-7xl mx-auto flex h-full items-center px-4 sm:px-6 pt-16 sm:pt-20">
+          <div className="max-w-2xl">
+            <div className="inline-block px-4 py-2 bg-red-600/30 border border-red-500/40 rounded-full mb-6 backdrop-blur-sm">
+              <span className="text-red-300 text-sm font-medium">
+                🔥 Nouveau Collection 2026
+              </span>
             </div>
 
-            {/* Hero Car Image */}
-            <div className="relative mt-4 lg:mt-0">
-              <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-orange-500 opacity-20 blur-3xl"></div>
-              <img
-                src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800"
-                alt="Hero Car"
-                className="relative z-10 w-full h-auto drop-shadow-2xl"
-              />
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight text-white">
+              Conduisez
+              <span className="block bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent">
+                Votre Rêve
+              </span>
+            </h1>
+
+            <p className="text-base sm:text-xl text-gray-200 mb-8 leading-relaxed drop-shadow">
+              Découvrez notre collection exclusive de véhicules. Des
+              performances exceptionnelles, un luxe incomparable.
+            </p>
+
+            <div className="flex flex-wrap gap-3 sm:gap-4">
+              <Link
+                to="/cars"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full font-semibold hover:shadow-lg hover:shadow-red-500/50 transition text-sm sm:text-base"
+              >
+                Voir la Collection
+              </Link>
+              <Link
+                to="/contact"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-full font-semibold hover:bg-white/20 transition text-sm sm:text-base"
+              >
+                Prendre RDV
+              </Link>
             </div>
           </div>
         </div>
-      </section>
+      </HeroCarousel>
 
       {/* Search Bar */}
       <section className="py-6 sm:py-8 px-4 sm:px-6">
@@ -157,7 +194,7 @@ export default function Home() {
                 <label className="text-sm text-gray-500 dark:text-gray-400 mb-2 block">Prix Max</label>
                 <input
                   type="text"
-                  placeholder="€ 100,000"
+                  placeholder="100 000 FDJ"
                   className="w-full bg-white dark:bg-black/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 sm:px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-red-500 text-sm transition-colors duration-300"
                 />
               </div>
@@ -203,7 +240,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-12">
             <div>
-              <h2 className="text-2xl sm:text-4xl font-bold mb-2">Collection Premium</h2>
+              <h2 className="text-2xl sm:text-4xl font-bold mb-2">Collection</h2>
               <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">
                 Découvrez nos véhicules d'exception
               </p>
@@ -307,7 +344,7 @@ export default function Home() {
       <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gray-50/50 dark:bg-gradient-to-b dark:from-transparent dark:to-gray-900/50 transition-colors duration-300">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-2xl sm:text-4xl font-bold mb-4">Nos Services Premium</h2>
+            <h2 className="text-2xl sm:text-4xl font-bold mb-4">Nos Services</h2>
             <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg">
               Une expérience client d'exception
             </p>

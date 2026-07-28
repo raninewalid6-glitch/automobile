@@ -79,9 +79,9 @@ function Filterbar({
                 className="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-red-500"
               >
                 <option value="all">Tous les prix</option>
-                <option value="low">Moins de 150000fr</option>
-                <option value="mid">150000fr - 200000fr</option>
-                <option value="high">Plus de 200000fr</option>
+                <option value="low">Moins de 150 000 FDJ</option>
+                <option value="mid">150 000 - 200 000 FDJ</option>
+                <option value="high">Plus de 200 000 FDJ</option>
               </select>
             </div>
 

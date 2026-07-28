@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { cars } from "../data/carsdata";
+import { useEffect, useMemo, useState } from "react";
+import { fetchPublicCars } from "../lib/publicCars";
 import React from "react";
 
 import Navbar from "../components/navbar";
@@ -14,6 +14,17 @@ import { useAuth } from "../context/userContext";
 
 export default function Cars() {
   const { isAuthenticated } = useAuth();
+
+  const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    fetchPublicCars()
+      .then(setCars)
+      .catch((err) => setLoadError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedBrand, setSelectedBrand] = useState("all");
@@ -34,11 +45,12 @@ export default function Cars() {
   const filteredCars = useMemo(() => cars.filter((car) => {
     if (selectedCategory !== "all" && car.category !== selectedCategory) return false;
     if (selectedBrand !== "all" && car.brand !== selectedBrand) return false;
+    if (priceRange !== "all" && !car.price) return false;
     if (priceRange === "low" && car.price > 150000) return false;
     if (priceRange === "mid" && (car.price < 150000 || car.price > 200000)) return false;
     if (priceRange === "high" && car.price < 200000) return false;
     return true;
-  }), [selectedCategory, selectedBrand, priceRange]);
+  }), [cars, selectedCategory, selectedBrand, priceRange]);
 
   const brands = [...new Set(cars.map((car) => car.brand))];
   const categories = [...new Set(cars.map((car) => car.category))];
@@ -74,8 +86,13 @@ export default function Cars() {
             <span className="text-red-500">Premium</span>
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">
-            {filteredCars.length} véhicules disponibles
+            {loading ? "Chargement des véhicules..." : `${filteredCars.length} véhicules disponibles`}
           </p>
+          {loadError && (
+            <p className="mt-4 inline-block rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-500">
+              {loadError}
+            </p>
+          )}
         </div>
       </section>
 
@@ -110,6 +127,10 @@ export default function Cars() {
         setShowModal={setShowDetailsModal}
         selectedCar={detailsCar}
         onReserve={handleReserveFromDetails}
+        onLoginRequired={() => {
+          setShowDetailsModal(false);
+          setShowLoginModal(true);
+        }}
       />
 
       <Reservation

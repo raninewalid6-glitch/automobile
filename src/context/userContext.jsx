@@ -1,69 +1,89 @@
-import React from "react";
-import Userdata from "../data/Userdata";
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { apiFetch } from "../lib/api";
 
 // 1. Création du context
 const AuthContext = createContext(null);
 
+const SESSION_KEY = "client_session";
+
+// Ajoute des alias français (nom, prenom, telephone) utilisés par les composants
+function withAliases(user) {
+  if (!user) return null;
+  const parts = (user.full_name || "").trim().split(" ");
+  return {
+    ...user,
+    prenom: parts[0] || "",
+    nom: parts.slice(1).join(" "),
+    telephone: user.phone || "",
+  };
+}
+
 // 2. Provider
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔄 Charger l'utilisateur depuis le localStorage
+  // Recharger la session depuis le localStorage au démarrage
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const stored = localStorage.getItem(SESSION_KEY);
+    if (stored) {
+      setSession(JSON.parse(stored));
     }
     setLoading(false);
   }, []);
 
-  const login = (email, password) => {
-    // 🔍 Chercher l'utilisateur dans la "fake DB"
-    const foundUser = Userdata.find(
-      (user) => user.email === email && user.password === password
-    );
-
-    if (!foundUser) {
-      return {
-        success: false,
-        message: "Email ou mot de passe incorrect",
-      };
-    }
-
-    // 🔐 Données utilisateur sans le mot de passe
-    const fakeUser = {
-      id: foundUser.id,
-      nom: foundUser.nom,
-      prenom: foundUser.prenom,
-      email: foundUser.email,
-      telephone: foundUser.telephone,
-      role: "user", // tu peux gérer admin ici
-      token: "fake-jwt-token",
-    };
-
-    setUser(fakeUser);
-    localStorage.setItem("user", JSON.stringify(fakeUser));
-
-    return {
-      success: true,
-      user: fakeUser,
-    };
+  const saveSession = (data) => {
+    setSession(data);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(data));
   };
 
-  // 🚪 Déconnexion
+  // Connexion via l'API
+  const login = async (email, password) => {
+    try {
+      const { user, token } = await apiFetch("/auth/login", {
+        method: "POST",
+        body: { email, password },
+      });
+      saveSession({ user, token });
+      return { success: true };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  // Inscription via l'API (connecte directement l'utilisateur)
+  const register = async ({ nom, prenom, email, telephone, password }) => {
+    try {
+      const { user, token } = await apiFetch("/auth/register", {
+        method: "POST",
+        body: {
+          fullName: `${prenom} ${nom}`.trim(),
+          email,
+          phone: telephone,
+          password,
+        },
+      });
+      saveSession({ user, token });
+      return { success: true };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  // Déconnexion
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
+    setSession(null);
+    localStorage.removeItem(SESSION_KEY);
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        isAuthenticated: !!user,
+        user: withAliases(session?.user),
+        token: session?.token ?? null,
+        isAuthenticated: !!session,
         login,
+        register,
         logout,
         loading,
       }}

@@ -4,3 +4,17 @@
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 @import "tw-animate-css";
 
+/* Zoom lent des images du carrousel hero (effet Ken Burns) */
+@keyframes hero-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+
+.animate-hero-zoom {
+  animation: hero-zoom 7s ease-out forwards;
+}
+

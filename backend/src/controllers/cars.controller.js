@@ -193,14 +193,14 @@ export async function adminUpdateCar(req, res, next) {
          category = $7, seats = $8, doors = $9, air_conditioning = $10, color = $11,
          plate_number = $12, city = $13, address = $14, mileage = $15, insurance = $16,
          status = $17, is_for_rent = $18, rent_price_per_day = $19, deposit_amount = $20,
-         is_for_sale = $21, sale_price = $22
-       WHERE id = $23`,
+         is_for_sale = $21, sale_price = $22, owner_id = $23
+       WHERE id = $24`,
       [
         merged.title, merged.brand, merged.model, merged.year, merged.transmission, merged.fuelType,
         merged.category, merged.seats, merged.doors, merged.airConditioning, merged.color,
         merged.plateNumber, merged.city, merged.address, merged.mileage, merged.insurance,
         merged.status, merged.isForRent, merged.rentPricePerDay, merged.depositAmount,
-        merged.isForSale, merged.salePrice, id,
+        merged.isForSale, merged.salePrice, merged.ownerId, id,
       ]
     );
 

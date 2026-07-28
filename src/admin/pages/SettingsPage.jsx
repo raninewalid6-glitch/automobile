@@ -1,11 +1,10 @@
 import React, { useMemo, useState } from "react";
 import { BadgeDollarSign, Building2, CheckCircle2, CreditCard, Palette, Percent, Save, Settings, WalletCards } from "lucide-react";
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
+// Montants affichés en francs Djibouti
+const currencyFormatter = {
+  format: (value) => `${new Intl.NumberFormat("fr-FR").format(value ?? 0)} FDJ`,
+};
 
 const initialSettings = {
   branding: {
@@ -15,7 +14,7 @@ const initialSettings = {
     publicTagline: "Location et vente automobile premium",
   },
   payment: {
-    defaultCurrency: "USD",
+    defaultCurrency: "FDJ",
     cashValidation: true,
     waafiEnabled: true,
     dmoneyEnabled: true,
@@ -219,8 +218,8 @@ export default function SettingsPage() {
                   onChange={(event) => updatePayment("defaultCurrency", event.target.value)}
                   value={settings.payment.defaultCurrency}
                 >
+                  <option value="FDJ">FDJ (franc Djibouti)</option>
                   <option value="USD">USD</option>
-                  <option value="DJF">DJF</option>
                   <option value="EUR">EUR</option>
                 </select>
               </Field>

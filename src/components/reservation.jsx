@@ -1,16 +1,14 @@
 import React, { useState } from "react";
-import { X, CalendarDays } from "lucide-react";
+import { X, CalendarDays, CheckCircle2 } from "lucide-react";
 import { useAuth } from "../context/userContext";
+import { apiFetch } from "../lib/api";
 
 function Reservation({
   showReservationModal,
   setShowReservationModal,
   selectedCar,
-  setShowPaymentModal,
-  setReservationData,
-  setTotalPrice,
 }) {
-  const { isAuthenticated, user } = useAuth();
+  const { user, token } = useAuth();
 
   const [reservationForm, setReservationForm] = useState({
     nom: user?.nom || "",
@@ -20,6 +18,9 @@ function Reservation({
     dateFin: "",
     message: "",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [confirmedBooking, setConfirmedBooking] = useState(null);
 
   const inputClass = "w-full bg-white dark:bg-black/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors duration-300";
   const labelClass = "text-sm text-gray-500 dark:text-gray-400 mb-2 block";
@@ -33,31 +34,84 @@ function Reservation({
     return days * selectedCar.pricePerDay;
   };
 
-  const handleReservationSubmit = (e) => {
+  const handleReservationSubmit = async (e) => {
     e.preventDefault();
-    const start = new Date(reservationForm.dateDebut);
-    const end = new Date(reservationForm.dateFin);
-    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-    const total = days * selectedCar.pricePerDay;
+    setSubmitting(true);
+    setError("");
 
-    setReservationData({
-      car: selectedCar,
-      user,
-      ...reservationForm,
-      days,
-    });
-    setTotalPrice(total);
+    try {
+      const data = await apiFetch("/bookings", {
+        method: "POST",
+        token,
+        body: {
+          carId: selectedCar.id,
+          startDate: reservationForm.dateDebut,
+          endDate: reservationForm.dateFin,
+        },
+      });
+      setConfirmedBooking(data.booking);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const closeModal = () => {
     setShowReservationModal(false);
-    setShowPaymentModal(true);
+    setConfirmedBooking(null);
+    setError("");
+    setReservationForm((current) => ({ ...current, dateDebut: "", dateFin: "", message: "" }));
   };
 
   if (!showReservationModal || !selectedCar) return null;
+
+  // Écran de confirmation après une réservation réussie
+  if (confirmedBooking) {
+    return (
+      <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 overflow-y-auto">
+        <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl max-w-md w-full border border-gray-200 dark:border-gray-700 relative my-8 p-8 text-center transition-colors duration-300">
+          <div className="w-16 h-16 bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 className="w-9 h-9 text-green-500" />
+          </div>
+          <h2 className="text-2xl font-bold mb-2">Réservation enregistrée !</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
+            Votre demande pour <span className="font-semibold text-gray-900 dark:text-white">{selectedCar.name}</span> est en attente de confirmation par notre équipe.
+          </p>
+          <div className="bg-gray-100 dark:bg-black/50 rounded-xl p-4 mb-6 text-left space-y-2 text-sm transition-colors duration-300">
+            <div className="flex justify-between">
+              <span className="text-gray-500 dark:text-gray-400">Du</span>
+              <span className="font-semibold">{new Date(confirmedBooking.startDate).toLocaleDateString("fr-FR")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500 dark:text-gray-400">Au</span>
+              <span className="font-semibold">{new Date(confirmedBooking.endDate).toLocaleDateString("fr-FR")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500 dark:text-gray-400">Durée</span>
+              <span className="font-semibold">{confirmedBooking.days} jour{confirmedBooking.days > 1 ? "s" : ""}</span>
+            </div>
+            <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
+              <span className="font-bold">Total</span>
+              <span className="font-bold text-red-500">{confirmedBooking.totalAmount.toLocaleString()} FDJ</span>
+            </div>
+          </div>
+          <button
+            onClick={closeModal}
+            className="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 overflow-y-auto">
       <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl max-w-2xl w-full border border-gray-200 dark:border-gray-700 relative my-8 transition-colors duration-300">
         <button
-          onClick={() => setShowReservationModal(false)}
+          onClick={closeModal}
           className="absolute top-4 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white z-10 transition-colors"
         >
           <X className="w-6 h-6" />
@@ -186,12 +240,18 @@ function Reservation({
               </div>
             )}
 
+            {error && (
+              <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-500">
+                {error}
+              </p>
+            )}
+
             <button
               type="submit"
               className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold text-lg hover:shadow-lg hover:shadow-red-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!reservationForm.dateDebut || !reservationForm.dateFin}
+              disabled={!reservationForm.dateDebut || !reservationForm.dateFin || submitting}
             >
-              Confirmer la réservation
+              {submitting ? "Envoi en cours..." : "Confirmer la réservation"}
             </button>
           </form>
         </div>
