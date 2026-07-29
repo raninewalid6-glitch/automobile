@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ImagePlus, Save } from "lucide-react";
-import { apiFetch } from "../../lib/api";
+import { ArrowLeft, ImagePlus, Save, Trash2, Upload } from "lucide-react";
+import { apiFetch, apiUpload } from "../../lib/api";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import {
   carStatusLabels,
@@ -58,7 +58,9 @@ export default function CarFormPage() {
   const [owners, setOwners] = useState([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     apiFetch("/admin/owners", { token })
@@ -101,6 +103,33 @@ export default function CarFormPage() {
 
   const addImage = () => {
     setForm((current) => ({ ...current, images: [...current.images, ""] }));
+  };
+
+  const removeImage = (index) => {
+    setForm((current) => ({
+      ...current,
+      images: current.images.filter((_, imageIndex) => imageIndex !== index),
+    }));
+  };
+
+  // Upload des fichiers choisis, puis ajout de leurs URLs à la liste des photos
+  const handleFilesSelected = async (event) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    setError("");
+    try {
+      const data = await apiUpload("/admin/uploads", { files, token });
+      setForm((current) => ({
+        ...current,
+        images: [...current.images.filter((url) => url && url.trim()), ...data.urls],
+      }));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -259,17 +288,57 @@ export default function CarFormPage() {
         </section>
 
         <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white">Photos</h3>
-            <button type="button" className="inline-flex items-center gap-2 rounded-2xl border border-black/10 dark:border-white/10 px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={addImage}>
-              <ImagePlus className="h-4 w-4" /> Ajouter une URL
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                multiple
+                className="hidden"
+                onChange={handleFilesSelected}
+              />
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={() => fileInputRef.current?.click()}
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-red-600/25 disabled:opacity-60"
+              >
+                <Upload className="h-4 w-4" /> {uploading ? "Envoi en cours..." : "Choisir des fichiers"}
+              </button>
+              <button type="button" className="inline-flex items-center gap-2 rounded-2xl border border-black/10 dark:border-white/10 px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={addImage}>
+                <ImagePlus className="h-4 w-4" /> Ajouter une URL
+              </button>
+            </div>
           </div>
+          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+            Choisis des photos depuis ton ordinateur ou ton téléphone (JPEG, PNG, WebP — 4 Mo max par photo), ou colle une adresse d'image.
+          </p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {form.images.map((image, index) => (
-              <Field key={`image-${index}`} label={`Image ${index + 1}`}>
-                <input className={inputClass} value={image} placeholder="https://..." onChange={(event) => updateImage(index, event.target.value)} />
-              </Field>
+              <div key={`image-${index}`} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input className={inputClass} value={image} placeholder="https://..." onChange={(event) => updateImage(index, event.target.value)} />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    title="Retirer cette photo"
+                    className="shrink-0 rounded-xl border border-red-500/30 p-2.5 text-red-600 dark:text-red-300 hover:bg-red-500/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+                {image && image.trim() && (
+                  <img
+                    src={image}
+                    alt={`Aperçu ${index + 1}`}
+                    className="h-32 w-full rounded-2xl border border-black/10 dark:border-white/10 object-cover"
+                    onError={(event) => { event.currentTarget.style.display = "none"; }}
+                    onLoad={(event) => { event.currentTarget.style.display = ""; }}
+                  />
+                )}
+              </div>
             ))}
           </div>
         </section>

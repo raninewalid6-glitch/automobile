@@ -28,3 +28,32 @@ export async function apiFetch(path, { method = "GET", body, token } = {}) {
   }
   return data;
 }
+
+// Envoi de fichiers (photos) vers l'API — utilise FormData au lieu de JSON
+export async function apiUpload(path, { files, token }) {
+  const formData = new FormData();
+  [...files].forEach((file) => formData.append("photos", file));
+
+  let res;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+  } catch {
+    throw new Error("Impossible de contacter le serveur — vérifie que l'API est démarrée (cd backend && npm run dev)");
+  }
+
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {
+    // réponse sans corps JSON
+  }
+
+  if (!res.ok) {
+    throw new Error(data?.message || `Erreur ${res.status}`);
+  }
+  return data;
+}

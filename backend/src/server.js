@@ -13,8 +13,22 @@ import purchasesRoutes from "./routes/purchases.routes.js";
 import adminPurchasesRoutes from "./routes/adminPurchases.routes.js";
 import adminPaymentsRoutes from "./routes/adminPayments.routes.js";
 import adminReceiptsRoutes from "./routes/adminReceipts.routes.js";
+import adminUploadsRoutes from "./routes/adminUploads.routes.js";
+import { serveImage } from "./controllers/uploads.controller.js";
+import { query } from "./config/db.js";
 
 const app = express();
+
+// Derrière le proxy de Render, permet de connaître le vrai protocole (https)
+app.set("trust proxy", 1);
+
+// Crée la table des photos uploadées si elle n'existe pas encore
+query(`CREATE TABLE IF NOT EXISTS images (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  data bytea NOT NULL,
+  mime_type text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+)`).catch((err) => console.error("Migration table images :", err.message));
 
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
   .split(",")
@@ -59,6 +73,8 @@ app.use("/api/purchases", purchasesRoutes);
 app.use("/api/admin/purchases", adminPurchasesRoutes);
 app.use("/api/admin/payments", adminPaymentsRoutes);
 app.use("/api/admin/receipts", adminReceiptsRoutes);
+app.use("/api/admin/uploads", adminUploadsRoutes);
+app.get("/api/images/:id", serveImage);
 
 // 404 JSON pour les routes inconnues de l'API
 app.use("/api", (_req, res) => {

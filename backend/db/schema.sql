@@ -200,6 +200,17 @@ CREATE TRIGGER payments_updated_at
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ------------------------------------------------------------
+-- IMAGES (photos uploadées depuis l'admin, servies par l'API)
+-- NB : créée automatiquement par le serveur au démarrage si absente.
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS images (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  data       bytea NOT NULL,
+  mime_type  text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- ------------------------------------------------------------
 -- RECEIPTS (reçus PDF — 0..1 par réservation ou achat)
 -- ------------------------------------------------------------
 CREATE TABLE receipts (
