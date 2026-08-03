@@ -316,30 +316,48 @@ export default function CarFormPage() {
             Choisis des photos depuis ton ordinateur ou ton téléphone (JPEG, PNG, WebP — 4 Mo max par photo), ou colle une adresse d'image.
           </p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            {form.images.map((image, index) => (
-              <div key={`image-${index}`} className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <input className={inputClass} value={image} placeholder="https://..." onChange={(event) => updateImage(index, event.target.value)} />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    title="Retirer cette photo"
-                    className="shrink-0 rounded-xl border border-red-500/30 p-2.5 text-red-600 dark:text-red-300 hover:bg-red-500/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+            {form.images.map((image, index) => {
+              // Photo venue du bouton "Choisir des fichiers" : on montre juste l'aperçu
+              const isUploaded = image.includes("/api/images/");
+              return (
+                <div key={`image-${index}`} className="space-y-2">
+                  {!isUploaded && (
+                    <div className="flex items-center gap-2">
+                      <input className={inputClass} value={image} placeholder="https://..." onChange={(event) => updateImage(index, event.target.value)} />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        title="Retirer cette photo"
+                        className="shrink-0 rounded-xl border border-red-500/30 p-2.5 text-red-600 dark:text-red-300 hover:bg-red-500/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                  {image && image.trim() && (
+                    <div className="relative">
+                      <img
+                        src={image}
+                        alt={`Aperçu ${index + 1}`}
+                        className="h-36 w-full rounded-2xl border border-black/10 dark:border-white/10 object-cover"
+                        onError={(event) => { event.currentTarget.style.display = "none"; }}
+                        onLoad={(event) => { event.currentTarget.style.display = ""; }}
+                      />
+                      {isUploaded && (
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          title="Retirer cette photo"
+                          className="absolute right-2 top-2 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition hover:bg-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-                {image && image.trim() && (
-                  <img
-                    src={image}
-                    alt={`Aperçu ${index + 1}`}
-                    className="h-32 w-full rounded-2xl border border-black/10 dark:border-white/10 object-cover"
-                    onError={(event) => { event.currentTarget.style.display = "none"; }}
-                    onLoad={(event) => { event.currentTarget.style.display = ""; }}
-                  />
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
