@@ -18,4 +18,4 @@ services:
       - key: COMMISSION_RATE
         value: "10"
       - key: CORS_ORIGIN
-        value: https://automobilear.vercel.app
+        value: https://automobile-loc.vercel.app
