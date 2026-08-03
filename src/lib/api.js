@@ -1,5 +1,12 @@
-// Client API partagé — toutes les requêtes vers le backend passent par ici
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// Client API partagé — toutes les requêtes vers le backend passent par ici.
+// Adresse de l'API : variable VITE_API_URL si définie, sinon détection automatique :
+// - site ouvert en local (localhost) -> API locale
+// - site en ligne (Vercel ou autre)  -> API de production sur Render
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (window.location.hostname === "localhost"
+    ? "http://localhost:5000/api"
+    : "https://djibdrive-api.onrender.com/api");
 
 export async function apiFetch(path, { method = "GET", body, token } = {}) {
   let res;
