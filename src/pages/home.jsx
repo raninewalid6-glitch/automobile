@@ -51,11 +51,14 @@ export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showReservationModal, setShowReservationModal] = useState(false);
   const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
+  const [featuredCars, setFeaturedCars] = useState([]);
 
-  // Remplit le carrousel avec les vraies voitures du catalogue (max 5)
+  // Charge les vraies voitures : elles alimentent le carrousel ET la Collection Premium
   useEffect(() => {
     fetchPublicCars()
       .then((cars) => {
+        setFeaturedCars(cars.slice(0, 4));
+
         const slides = cars
           .filter((car) => car.image)
           .slice(0, 5)
@@ -74,49 +77,6 @@ export default function Home() {
         // API éteinte : on garde les slides par défaut
       });
   }, []);
-
-  const featuredCars = [
-    {
-      id: 1,
-      name: "Porsche 911 Turbo S",
-      category: "Sports Car",
-      brand: "Porsche",
-      year: "2024",
-      price: 185000,
-      image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800",
-      specs: { power: "640 HP", speed: "330 km/h", time: "2.7s" },
-    },
-    {
-      id: 2,
-      name: "Mercedes-AMG GT",
-      category: "Luxury",
-      brand: "Mercedes",
-      year: "2024",
-      price: 142000,
-      image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800",
-      specs: { power: "523 HP", speed: "310 km/h", time: "3.6s" },
-    },
-    {
-      id: 3,
-      name: "BMW M8 Competition",
-      category: "Performance",
-      brand: "BMW",
-      year: "2024",
-      price: 138000,
-      image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800",
-      specs: { power: "625 HP", speed: "305 km/h", time: "3.2s" },
-    },
-    {
-      id: 4,
-      name: "Audi RS e-tron GT",
-      category: "Electric",
-      brand: "Audi",
-      year: "2024",
-      price: 148000,
-      image: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800",
-      specs: { power: "646 HP", speed: "250 km/h", time: "3.3s" },
-    },
-  ];
 
   const stats = [
     { number: "98%", label: "Clients Satisfaits", icon: <Award className="w-6 h-6" /> },
@@ -295,22 +255,26 @@ export default function Home() {
 
                     <div className="grid grid-cols-3 gap-1 sm:gap-2 mb-4 sm:mb-6 text-xs">
                       <div className="bg-gray-100 dark:bg-black/50 rounded-lg p-1.5 sm:p-2 text-center transition-colors duration-300">
-                        <div className="text-gray-500 dark:text-gray-400">Power</div>
-                        <div className="font-semibold">{car.specs.power}</div>
+                        <div className="text-gray-500 dark:text-gray-400">Places</div>
+                        <div className="font-semibold">{car.specs.seats}</div>
                       </div>
                       <div className="bg-gray-100 dark:bg-black/50 rounded-lg p-1.5 sm:p-2 text-center transition-colors duration-300">
-                        <div className="text-gray-500 dark:text-gray-400">Speed</div>
-                        <div className="font-semibold">{car.specs.speed}</div>
+                        <div className="text-gray-500 dark:text-gray-400">Portes</div>
+                        <div className="font-semibold">{car.specs.doors}</div>
                       </div>
                       <div className="bg-gray-100 dark:bg-black/50 rounded-lg p-1.5 sm:p-2 text-center transition-colors duration-300">
-                        <div className="text-gray-500 dark:text-gray-400">0-100</div>
-                        <div className="font-semibold">{car.specs.time}</div>
+                        <div className="text-gray-500 dark:text-gray-400">Carburant</div>
+                        <div className="font-semibold">{car.specs.fuel}</div>
                       </div>
                     </div>
 
                     <div className="flex justify-between items-center">
                       <div className="text-lg sm:text-2xl font-bold">
-                        {car.price.toLocaleString()} FDJ
+                        {car.price != null
+                          ? `${car.price.toLocaleString()} FDJ`
+                          : car.pricePerDay != null
+                            ? `${car.pricePerDay.toLocaleString()} FDJ/jour`
+                            : "—"}
                       </div>
                       <button
                         onClick={() => {
