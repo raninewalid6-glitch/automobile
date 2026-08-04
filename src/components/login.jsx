@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, User } from "lucide-react";
 import { useAuth } from "../context/userContext";
 
@@ -16,6 +16,16 @@ function Connexion({
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Bloque le défilement de la page derrière la fenêtre (évite la double barre de défilement)
+  useEffect(() => {
+    if (!showLoginModal) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showLoginModal]);
 
   const inputClass = "w-full bg-white dark:bg-black/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors duration-300";
 
@@ -59,8 +69,9 @@ function Connexion({
   if (!showLoginModal) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-      <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl max-w-md w-full border border-gray-200 dark:border-gray-700 relative transition-colors duration-300">
+    <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 overflow-y-auto">
+      <div className="flex min-h-full items-center justify-center p-6">
+      <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl max-w-md w-full border border-gray-200 dark:border-gray-700 relative my-8 transition-colors duration-300">
         <button
           onClick={() => { setShowLoginModal(false); setIsRegistering(false); setError(""); }}
           className="absolute top-4 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
@@ -201,6 +212,7 @@ function Connexion({
             </form>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

@@ -18,6 +18,16 @@ export default function CarDetailsModal({
     setPurchaseState({ sending: false, done: false, error: "" });
   }, [selectedCar?.id]);
 
+  // Bloque le défilement de la page derrière la fenêtre (évite la double barre de défilement)
+  useEffect(() => {
+    if (!showModal) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showModal]);
+
   const handlePurchaseRequest = async () => {
     if (!isAuthenticated) {
       onLoginRequired?.();
@@ -35,7 +45,8 @@ export default function CarDetailsModal({
   if (!showModal || !selectedCar) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 dark:bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 dark:bg-black/90 backdrop-blur-sm z-50 overflow-y-auto">
+      <div className="flex min-h-full items-center justify-center p-4">
       <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl max-w-5xl w-full border border-gray-200 dark:border-gray-700 relative my-8 transition-colors duration-300">
 
         <button
@@ -220,6 +231,7 @@ export default function CarDetailsModal({
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
