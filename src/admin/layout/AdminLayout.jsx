@@ -8,7 +8,7 @@ export default function AdminLayout() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
+    <div dir="ltr" className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(220,38,38,0.22),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(249,115,22,0.12),transparent_30%)]" />
       <AdminSidebar isMobileOpen={isMobileSidebarOpen} onMobileClose={() => setIsMobileSidebarOpen(false)} />
       <div className="relative lg:pl-72">

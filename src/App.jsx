@@ -29,6 +29,7 @@ import ReceiptsPage from "./admin/pages/ReceiptsPage";
 import SettingsPage from "./admin/pages/SettingsPage";
 import Navbar from "./components/navbar";
 import Connexion from "./components/login";
+import { LanguageProvider } from "./lib/i18n";
 
 function PublicLayout() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -50,6 +51,7 @@ function PublicLayout() {
 
 function App() {
   return (
+    <LanguageProvider>
     <Router>
       <Routes>
         <Route element={<PublicLayout />}>
@@ -87,6 +89,7 @@ function App() {
         </Route>
       </Routes>
     </Router>
+    </LanguageProvider>
   );
 }
 

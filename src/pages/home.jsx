@@ -22,7 +22,9 @@ import { useNavigate } from "react-router-dom";
 import CarDetailsModal from "../components/detailsmodal";
 import Connexion from "../components/login";
 import HeroCarousel from "../components/herocarousel";
+import Footer from "../components/footer";
 import { fetchPublicCars } from "../lib/publicCars";
+import { useLang } from "../lib/i18n";
 
 // Slides affichées si l'API est éteinte ou si aucune voiture n'a de photo
 const defaultHeroSlides = [
@@ -45,6 +47,7 @@ const defaultHeroSlides = [
 
 export default function Home() {
   const navigate = useNavigate();
+  const { t } = useLang();
   const [activeTab, setActiveTab] = useState("new");
   const [showModal, setShowModal] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
@@ -79,9 +82,9 @@ export default function Home() {
   }, []);
 
   const stats = [
-    { number: "98%", label: "Clients Satisfaits", icon: <Award className="w-6 h-6" /> },
-    { number: "15+", label: "Ans d'Expérience", icon: <Shield className="w-6 h-6" /> },
-    { number: "50+", label: "Marques Premium", icon: <Star className="w-6 h-6" /> },
+    { number: "98%", label: t("stats.satisfied"), icon: <Award className="w-6 h-6" /> },
+    { number: "15+", label: t("stats.years"), icon: <Shield className="w-6 h-6" /> },
+    { number: "50+", label: t("stats.brands"), icon: <Star className="w-6 h-6" /> },
   ];
 
   return (
@@ -93,20 +96,19 @@ export default function Home() {
           <div className="max-w-2xl">
             <div className="inline-block px-4 py-2 bg-red-600/30 border border-red-500/40 rounded-full mb-6 backdrop-blur-sm">
               <span className="text-red-300 text-sm font-medium">
-                🔥 Nouveau Collection 2026
+                {t("hero.badge")}
               </span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight text-white">
-              Conduisez
+              {t("hero.title1")}
               <span className="block bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent">
-                Votre Rêve
+                {t("hero.title2")}
               </span>
             </h1>
 
             <p className="text-base sm:text-xl text-gray-200 mb-8 leading-relaxed drop-shadow">
-              Découvrez notre collection exclusive de véhicules. Des
-              performances exceptionnelles, un luxe incomparable.
+              {t("hero.text")}
             </p>
 
             <div className="flex flex-wrap gap-3 sm:gap-4">
@@ -114,13 +116,13 @@ export default function Home() {
                 to="/cars"
                 className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full font-semibold hover:shadow-lg hover:shadow-red-500/50 transition text-sm sm:text-base"
               >
-                Voir la Collection
+                {t("hero.viewCollection")}
               </Link>
               <Link
                 to="/contact"
                 className="px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-full font-semibold hover:bg-white/20 transition text-sm sm:text-base"
               >
-                Prendre RDV
+                {t("hero.appointment")}
               </Link>
             </div>
           </div>
@@ -133,25 +135,25 @@ export default function Home() {
           <div className="bg-gray-100 dark:bg-gradient-to-r dark:from-gray-900 dark:to-gray-800 rounded-2xl p-4 sm:p-8 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
               <div>
-                <label className="text-sm text-gray-500 dark:text-gray-400 mb-2 block">Type</label>
+                <label className="text-sm text-gray-500 dark:text-gray-400 mb-2 block">{t("search.type")}</label>
                 <select className="w-full bg-white dark:bg-black/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 sm:px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-red-500 text-sm transition-colors duration-300">
-                  <option>All Types</option>
+                  <option>{t("search.allTypes")}</option>
                   <option>SUV</option>
                   <option>Sedan</option>
                   <option>Sports</option>
                 </select>
               </div>
               <div>
-                <label className="text-sm text-gray-500 dark:text-gray-400 mb-2 block">Marque</label>
+                <label className="text-sm text-gray-500 dark:text-gray-400 mb-2 block">{t("search.brand")}</label>
                 <select className="w-full bg-white dark:bg-black/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 sm:px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-red-500 text-sm transition-colors duration-300">
-                  <option>All Brands</option>
-                  <option>BMW</option>
-                  <option>Mercedes</option>
-                  <option>Audi</option>
+                  <option>{t("search.allBrands")}</option>
+                  <option>Toyota</option>
+                  <option>Hyundai</option>
+                  <option>Kia</option>
                 </select>
               </div>
               <div>
-                <label className="text-sm text-gray-500 dark:text-gray-400 mb-2 block">Prix Max</label>
+                <label className="text-sm text-gray-500 dark:text-gray-400 mb-2 block">{t("search.maxPrice")}</label>
                 <input
                   type="text"
                   placeholder="100 000 FDJ"
@@ -159,7 +161,7 @@ export default function Home() {
                 />
               </div>
               <div>
-                <label className="text-sm text-gray-500 dark:text-gray-400 mb-2 block">Année</label>
+                <label className="text-sm text-gray-500 dark:text-gray-400 mb-2 block">{t("search.year")}</label>
                 <select className="w-full bg-white dark:bg-black/50 border border-gray-300 dark:border-gray-700 rounded-lg px-3 sm:px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-red-500 text-sm transition-colors duration-300">
                   <option>2024</option>
                   <option>2023</option>
@@ -169,7 +171,7 @@ export default function Home() {
               <div className="sm:col-span-2 md:col-span-1 flex items-end">
                 <button className="w-full bg-gradient-to-r from-red-600 to-orange-500 rounded-lg px-4 sm:px-6 py-3 font-semibold text-white hover:shadow-lg hover:shadow-red-500/50 transition flex items-center justify-center text-sm sm:text-base">
                   <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  Search
+                  {t("search.button")}
                 </button>
               </div>
             </div>
@@ -200,9 +202,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-12">
             <div>
-              <h2 className="text-2xl sm:text-4xl font-bold mb-2">Collection</h2>
+              <h2 className="text-2xl sm:text-4xl font-bold mb-2">{t("collection.title")}</h2>
               <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">
-                Découvrez nos véhicules d'exception
+                {t("collection.subtitle")}
               </p>
             </div>
 
@@ -215,7 +217,7 @@ export default function Home() {
                     : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
                 }`}
               >
-                Nouveaux
+                {t("collection.new")}
               </button>
               <button
                 onClick={() => setActiveTab("used")}
@@ -225,7 +227,7 @@ export default function Home() {
                     : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
                 }`}
               >
-                Occasion
+                {t("collection.used")}
               </button>
             </div>
           </div>
@@ -255,15 +257,15 @@ export default function Home() {
 
                     <div className="grid grid-cols-3 gap-1 sm:gap-2 mb-4 sm:mb-6 text-xs">
                       <div className="bg-gray-100 dark:bg-black/50 rounded-lg p-1.5 sm:p-2 text-center transition-colors duration-300">
-                        <div className="text-gray-500 dark:text-gray-400">Places</div>
+                        <div className="text-gray-500 dark:text-gray-400">{t("card.seats")}</div>
                         <div className="font-semibold">{car.specs.seats}</div>
                       </div>
                       <div className="bg-gray-100 dark:bg-black/50 rounded-lg p-1.5 sm:p-2 text-center transition-colors duration-300">
-                        <div className="text-gray-500 dark:text-gray-400">Portes</div>
+                        <div className="text-gray-500 dark:text-gray-400">{t("card.doors")}</div>
                         <div className="font-semibold">{car.specs.doors}</div>
                       </div>
                       <div className="bg-gray-100 dark:bg-black/50 rounded-lg p-1.5 sm:p-2 text-center transition-colors duration-300">
-                        <div className="text-gray-500 dark:text-gray-400">Carburant</div>
+                        <div className="text-gray-500 dark:text-gray-400">{t("card.fuel")}</div>
                         <div className="font-semibold">{car.specs.fuel}</div>
                       </div>
                     </div>
@@ -283,7 +285,7 @@ export default function Home() {
                         }}
                         className="px-3 sm:px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full text-xs sm:text-sm font-semibold hover:shadow-lg hover:shadow-red-500/50 transition"
                       >
-                        Details
+                        {t("card.details")}
                       </button>
                     </div>
                   </div>
@@ -297,7 +299,7 @@ export default function Home() {
               to="/cars"
               className="px-6 sm:px-8 py-3 sm:py-4 bg-black/10 dark:bg-white/10 backdrop-blur-sm border border-black/20 dark:border-white/20 rounded-full font-semibold hover:bg-black/20 dark:hover:bg-white/20 transition inline-flex items-center text-sm sm:text-base"
             >
-              Voir Tous les Véhicules
+              {t("collection.viewAll")}
               <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
             </Link>
           </div>
@@ -308,9 +310,9 @@ export default function Home() {
       <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gray-50/50 dark:bg-gradient-to-b dark:from-transparent dark:to-gray-900/50 transition-colors duration-300">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-2xl sm:text-4xl font-bold mb-4">Nos Services</h2>
+            <h2 className="text-2xl sm:text-4xl font-bold mb-4">{t("services.title")}</h2>
             <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg">
-              Une expérience client d'exception
+              {t("services.subtitle")}
             </p>
           </div>
 
@@ -318,18 +320,18 @@ export default function Home() {
             {[
               {
                 icon: <Shield className="w-6 h-6 sm:w-7 sm:h-7 text-red-500" />,
-                title: "Garantie Totale",
-                desc: "Tous nos véhicules sont certifiés et bénéficient d'une garantie complète jusqu'à 5 ans.",
+                title: t("services.s1title"),
+                desc: t("services.s1desc"),
               },
               {
                 icon: <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-red-500" />,
-                title: "Financement Rapide",
-                desc: "Solutions de financement flexibles avec réponse en moins de 24 heures.",
+                title: t("services.s2title"),
+                desc: t("services.s2desc"),
               },
               {
                 icon: <Users className="w-6 h-6 sm:w-7 sm:h-7 text-red-500" />,
-                title: "Service VIP",
-                desc: "Accompagnement personnalisé par nos experts automobile dédiés.",
+                title: t("services.s3title"),
+                desc: t("services.s3desc"),
                 extra: "sm:col-span-2 md:col-span-1",
               },
             ].map((service, idx) => (
@@ -357,17 +359,17 @@ export default function Home() {
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxIDAgNiAyLjY5IDYgNnMtMi42OSA2LTYgNi02LTIuNjktNi02IDIuNjktNiA2LTZ6TTI0IDI0YzMuMzEgMCA2IDIuNjkgNiA2cy0yLjY5IDYtNiA2LTYtMi42OS02LTYgMi42OS02IDYtNnoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjA1Ii8+PC9nPjwvc3ZnPg==')] opacity-30"></div>
             <div className="relative z-10 text-center">
               <h2 className="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4 text-white">
-                Prêt à Conduire Votre Rêve ?
+                {t("cta.title")}
               </h2>
               <p className="text-base sm:text-xl text-white/90 mb-6 sm:mb-8">
-                Contactez-nous dès maintenant et obtenez un devis personnalisé
+                {t("cta.text")}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <button className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-red-600 rounded-full font-bold hover:bg-gray-100 transition text-sm sm:text-base">
-                  Prendre Rendez-vous
+                  {t("cta.appointment")}
                 </button>
                 <button className="px-6 sm:px-8 py-3 sm:py-4 bg-white/20 backdrop-blur-sm border-2 border-white text-white rounded-full font-bold hover:bg-white/30 transition text-sm sm:text-base">
-                  Nous Contacter
+                  {t("cta.contact")}
                 </button>
               </div>
             </div>
@@ -376,102 +378,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 border-t border-gray-800 py-12 px-6 mt-20">
-              <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                  <div>
-                    <div className="flex items-center space-x-2 mb-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-500 rounded-lg flex items-center justify-center">
-                        <span className="text-white font-bold text-xl">D</span>
-                      </div>
-                      <div>
-                        <div className="text-lg font-bold">Djib DRive</div>
-                        <div className="text-xs text-gray-400">
-                          Premium Dealership
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-gray-400 text-sm">
-                      Votre destination premium pour l'achat de véhicules d'exception.
-                    </p>
-                  </div>
-      
-                  <div>
-                    <h3 className="font-bold mb-4">Navigation</h3>
-                    <ul className="space-y-2 text-gray-400 text-sm">
-                      <li>
-                        <a href="#" className="hover:text-white transition">
-                          Accueil
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#" className="hover:text-white transition">
-                          Nos Voitures
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#" className="hover:text-white transition">
-                          Services
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#" className="hover:text-white transition">
-                          À propos
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-      
-                  <div>
-                    <h3 className="font-bold mb-4">Services</h3>
-                    <ul className="space-y-2 text-gray-400 text-sm">
-                      <li>
-                        <a href="#" className="hover:text-white transition">
-                          Financement
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#" className="hover:text-white transition">
-                          Assurance
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#" className="hover:text-white transition">
-                          Reprise
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#" className="hover:text-white transition">
-                          Maintenance
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-      
-                  <div>
-                    <h3 className="font-bold mb-4">Contact</h3>
-                    <ul className="space-y-3 text-gray-400 text-sm">
-                      <li className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4" />
-                        <span>+253 25313664</span>
-                      </li>
-                      <li className="flex items-center space-x-2">
-                        <Mail className="w-4 h-4" />
-                        <span>contact@Djib Drive.dj</span>
-                      </li>
-                      <li className="flex items-center space-x-2">
-                        <MapPin className="w-4 h-4" />
-                        <span>Djibouti City, Djibouti</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-      
-                <div className="border-t border-gray-800 pt-8 text-center text-gray-400 text-sm">
-                  <p>&copy; 2024 Djib Drive. Tous droits réservés.</p>
-                </div>
-              </div>
-            </footer>
+      <Footer />
         
 
       {/* Modal Car Details */}

@@ -11,9 +11,11 @@ import Reservation from "../components/reservation";
 import Paiement from "../components/paiement";
 import CarDetailsModal from "../components/detailsmodal";
 import { useAuth } from "../context/userContext";
+import { useLang } from "../lib/i18n";
 
 export default function Cars() {
   const { isAuthenticated } = useAuth();
+  const { t } = useLang();
 
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,11 +84,11 @@ export default function Cars() {
       <section className="relative pt-24 sm:pt-32 pb-8 sm:pb-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
-            Notre Collection{" "}
-            <span className="text-red-500">Premium</span>
+            {t("cars.title1")}{" "}
+            <span className="text-red-500">{t("cars.title2")}</span>
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">
-            {loading ? "Chargement des véhicules..." : `${filteredCars.length} véhicules disponibles`}
+            {loading ? t("cars.loading") : `${filteredCars.length} ${t("cars.available")}`}
           </p>
           {loadError && (
             <p className="mt-4 inline-block rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-500">

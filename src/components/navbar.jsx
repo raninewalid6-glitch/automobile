@@ -1,21 +1,23 @@
 import { useAuth } from "../context/userContext";
 import { useNavigate, Link, useLocation } from "react-router-dom"; // ← ajoute useLocation
-import { Menu, User, X } from "lucide-react";
+import { Globe, Menu, User, X } from "lucide-react";
 import React, { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
-
-const navLinks = [
-  { to: "/", label: "Home" },
-  { to: "/cars", label: "Nos Voitures" },
-  { to: "/services", label: "Services" },
-  { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
-];
+import { useLang, languages } from "../lib/i18n";
 
 function Navbar({ setShowLoginModal }) {
   const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation(); // ← récupère le pathname actuel
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { lang, setLang, t } = useLang();
+
+  const navLinks = [
+    { to: "/", label: t("nav.home") },
+    { to: "/cars", label: t("nav.cars") },
+    { to: "/services", label: t("nav.services") },
+    { to: "/about", label: t("nav.about") },
+    { to: "/contact", label: t("nav.contact") },
+  ];
 
   // Retourne les classes selon si le lien est actif ou non
   const navLinkClass = (path) =>
@@ -48,24 +50,37 @@ function Navbar({ setShowLoginModal }) {
             ))}
             {isAuthenticated && (
               <Link to="/mes-reservations" className={navLinkClass("/mes-reservations")}>
-                Mes réservations
+                {t("nav.myReservations")}
               </Link>
             )}
           </div>
 
-          {/* Auth + ThemeToggle */}
+          {/* Langue + Auth + ThemeToggle */}
           <div className="flex items-center space-x-2 sm:space-x-4">
+            <label className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black/50 px-2 py-2 text-gray-700 dark:text-gray-300 transition-colors duration-300">
+              <Globe className="w-4 h-4 shrink-0 text-red-500" />
+              <select
+                value={lang}
+                onChange={(event) => setLang(event.target.value)}
+                aria-label="Choisir la langue"
+                className="bg-transparent text-sm font-semibold outline-none cursor-pointer dark:[&>option]:bg-black"
+              >
+                {languages.map((language) => (
+                  <option key={language.code} value={language.code}>{language.label}</option>
+                ))}
+              </select>
+            </label>
             <ThemeToggle />
             {isAuthenticated ? (
               <div className="hidden lg:flex items-center space-x-3">
                 <span className="text-sm text-gray-600 dark:text-gray-300">
-                  Bonjour, {user?.prenom}
+                  {t("nav.hello")}, {user?.prenom}
                 </span>
                 <button
                   onClick={logout}
                   className="px-4 py-2 bg-red-600/20 border border-red-600/30 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-600/30 transition"
                 >
-                  Déconnexion
+                  {t("nav.logout")}
                 </button>
               </div>
             ) : (
@@ -74,7 +89,7 @@ function Navbar({ setShowLoginModal }) {
                 className="hidden lg:flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-red-500/50 transition"
               >
                 <User className="w-4 h-4" />
-                <span>Se connecter</span>
+                <span>{t("nav.login")}</span>
               </button>
             )}
             <button
@@ -107,7 +122,7 @@ function Navbar({ setShowLoginModal }) {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`block px-2 py-2 ${navLinkClass("/mes-reservations")}`}
               >
-                Mes réservations
+                {t("nav.myReservations")}
               </Link>
             )}
 
@@ -115,7 +130,7 @@ function Navbar({ setShowLoginModal }) {
               {isAuthenticated ? (
                 <div className="flex items-center justify-between px-2 py-2 gap-3">
                   <span className="text-sm text-gray-600 dark:text-gray-300 truncate">
-                    Bonjour, {user?.prenom}
+                    {t("nav.hello")}, {user?.prenom}
                   </span>
                   <button
                     onClick={() => {
@@ -124,7 +139,7 @@ function Navbar({ setShowLoginModal }) {
                     }}
                     className="shrink-0 px-4 py-2 bg-red-600/20 border border-red-600/30 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-600/30 transition"
                   >
-                    Déconnexion
+                    {t("nav.logout")}
                   </button>
                 </div>
               ) : (
@@ -136,7 +151,7 @@ function Navbar({ setShowLoginModal }) {
                   className="flex items-center space-x-2 px-2 py-2 w-full text-left font-semibold text-red-600 dark:text-red-400"
                 >
                   <User className="w-4 h-4" />
-                  <span>Se connecter</span>
+                  <span>{t("nav.login")}</span>
                 </button>
               )}
             </div>
