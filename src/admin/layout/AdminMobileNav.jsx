@@ -19,15 +19,16 @@ export default function AdminMobileNav() {
   const navigate = useNavigate();
 
   return (
-    <nav className="fixed inset-x-3 bottom-3 z-40 max-h-[34vh] overflow-y-auto rounded-3xl border border-black/10 dark:border-white/10 bg-white/90 dark:bg-black/90 shadow-2xl shadow-black/20 dark:shadow-black/60 backdrop-blur-xl transition-colors duration-300 lg:hidden">
-      <div className="grid grid-cols-3 gap-1 sm:grid-cols-5">
+    <nav className="fixed inset-x-3 bottom-3 z-40 rounded-3xl border border-black/10 dark:border-white/10 bg-white/90 dark:bg-black/90 shadow-2xl shadow-black/20 dark:shadow-black/60 backdrop-blur-xl transition-colors duration-300 lg:hidden">
+      {/* Une seule ligne compacte qui glisse horizontalement (barre d'onglets mobile) */}
+      <div className="flex items-stretch gap-1 overflow-x-auto px-2 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {mobileNavigation.map((item) => (
           <NavLink
             key={item.label}
             to={item.href}
             end={item.href === "/admin"}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-1 rounded-2xl px-2 py-2 text-[0.68rem] font-semibold transition sm:text-xs ${
+              `flex min-w-[4.2rem] flex-shrink-0 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-1.5 text-[0.65rem] font-semibold transition ${
                 isActive ? "bg-gradient-to-r from-red-600 to-orange-500 text-white" : "text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
               }`
             }
@@ -42,7 +43,7 @@ export default function AdminMobileNav() {
             logout();
             navigate("/admin/login", { replace: true });
           }}
-          className="flex flex-col items-center gap-1 rounded-2xl px-2 py-2 text-[0.68rem] font-semibold text-gray-500 dark:text-gray-400 transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white sm:text-xs"
+          className="flex min-w-[4.2rem] flex-shrink-0 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-1.5 text-[0.65rem] font-semibold text-gray-500 dark:text-gray-400 transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
         >
           <LogOut className="h-5 w-5" />
           Logout

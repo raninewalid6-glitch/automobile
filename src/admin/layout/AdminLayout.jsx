@@ -13,7 +13,7 @@ export default function AdminLayout() {
       <AdminSidebar isMobileOpen={isMobileSidebarOpen} onMobileClose={() => setIsMobileSidebarOpen(false)} />
       <div className="relative lg:pl-72">
         <AdminTopbar onMobileMenuOpen={() => setIsMobileSidebarOpen(true)} />
-        <main className="px-4 py-5 pb-28 sm:px-5 sm:py-6 lg:px-8 lg:pb-10">
+        <main className="px-4 py-5 pb-24 sm:px-5 sm:py-6 lg:px-8 lg:pb-10">
           <Outlet />
         </main>
       </div>
