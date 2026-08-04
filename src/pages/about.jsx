@@ -1,25 +1,26 @@
 import React from "react";
 import { Award, Shield, Star } from "lucide-react";
 import Footer from "../components/footer";
-
-const stats = [
-  { number: "98%", label: "Clients Satisfaits", icon: Award },
-  { number: "15+", label: "Ans d'Expérience", icon: Shield },
-  { number: "50+", label: "Marques Premium", icon: Star },
-];
+import { useLang } from "../lib/i18n";
 
 export default function About() {
+  const { t } = useLang();
+
+  const stats = [
+    { number: "98%", label: t("stats.satisfied"), icon: Award },
+    { number: "15+", label: t("stats.years"), icon: Shield },
+    { number: "50+", label: t("stats.brands"), icon: Star },
+  ];
+
   return (
     <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
       <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-            À propos de <span className="text-red-500">Djib Drive</span>
+            {t("about.title")} <span className="text-red-500">Djib Drive</span>
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
-            Djib Drive est la référence à Djibouti pour la location et la vente de véhicules premium.
-            Depuis notre création, nous accompagnons nos clients avec une flotte soigneusement
-            sélectionnée, un service transparent et une équipe passionnée par l'automobile.
+            {t("about.text")}
           </p>
         </div>
 
