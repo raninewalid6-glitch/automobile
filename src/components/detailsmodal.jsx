@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { X, Gauge, Zap, Settings, Fuel, Users, Check, ShoppingCart } from "lucide-react";
 import { useAuth } from "../context/userContext";
 import { apiFetch } from "../lib/api";
+import { useLang } from "../lib/i18n";
 
 export default function CarDetailsModal({
   showModal,
@@ -11,6 +12,7 @@ export default function CarDetailsModal({
   onLoginRequired,
 }) {
   const { isAuthenticated, token } = useAuth();
+  const { t } = useLang();
   const [purchaseState, setPurchaseState] = useState({ sending: false, done: false, error: "" });
 
   // Réinitialise l'état de la demande d'achat quand on change de voiture
@@ -99,14 +101,14 @@ export default function CarDetailsModal({
             <div className="bg-red-50 dark:bg-gradient-to-r dark:from-red-600/20 dark:to-orange-600/20 border border-red-200 dark:border-red-600/30 rounded-xl p-4 mb-6 transition-colors duration-300">
               <div className="flex justify-between items-center">
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Prix d'achat</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t("details.buyPrice")}</div>
                   <div className="text-3xl font-bold text-red-500">
                     {selectedCar.price != null ? `${selectedCar.price.toLocaleString()} FDJ` : "—"}
                   </div>
                 </div>
                 {selectedCar.pricePerDay && (
                   <div className="text-right">
-                    <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Location/jour</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t("details.rentPerDay")}</div>
                     <div className="text-2xl font-bold text-gray-900 dark:text-white">
                       {selectedCar.pricePerDay} FDJ
                     </div>
@@ -119,15 +121,15 @@ export default function CarDetailsModal({
             <div className="mb-6">
               <h3 className="text-xl font-bold mb-4 flex items-center">
                 <Settings className="w-5 h-5 mr-2 text-red-500" />
-                Caractéristiques Techniques
+                {t("details.specs")}
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { icon: <Gauge className="w-5 h-5 text-red-500" />, label: "Puissance", value: selectedCar.specs.power },
-                  { icon: <Zap className="w-5 h-5 text-red-500" />, label: "0-100 km/h", value: selectedCar.specs.time },
-                  { icon: <Gauge className="w-5 h-5 text-red-500" />, label: "Vitesse Max", value: selectedCar.specs.speed },
-                  { icon: <Fuel className="w-5 h-5 text-red-500" />, label: "Carburant", value: selectedCar.specs.fuel },
-                  { icon: <Users className="w-5 h-5 text-red-500" />, label: "Portes", value: selectedCar.specs.doors },
+                  { icon: <Gauge className="w-5 h-5 text-red-500" />, label: t("details.power"), value: selectedCar.specs.power },
+                  { icon: <Zap className="w-5 h-5 text-red-500" />, label: t("details.accel"), value: selectedCar.specs.time },
+                  { icon: <Gauge className="w-5 h-5 text-red-500" />, label: t("details.topSpeed"), value: selectedCar.specs.speed },
+                  { icon: <Fuel className="w-5 h-5 text-red-500" />, label: t("details.fuel"), value: selectedCar.specs.fuel },
+                  { icon: <Users className="w-5 h-5 text-red-500" />, label: t("details.doors"), value: selectedCar.specs.doors },
                 ].filter((spec) => spec.value != null).map((spec) => (
                   <div key={spec.label} className="bg-gray-100 dark:bg-black/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                     <div className="flex items-center space-x-2 mb-2">
@@ -142,7 +144,7 @@ export default function CarDetailsModal({
                   <div className="bg-gray-100 dark:bg-black/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 col-span-2 transition-colors duration-300">
                     <div className="flex items-center space-x-2 mb-2">
                       <Settings className="w-5 h-5 text-red-500" />
-                      <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">Transmission</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">{t("details.transmission")}</span>
                     </div>
                     <div className="font-bold">{selectedCar.specs.transmission}</div>
                   </div>
@@ -152,7 +154,7 @@ export default function CarDetailsModal({
                   <div className="bg-gray-100 dark:bg-black/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                     <div className="flex items-center space-x-2 mb-2">
                       <Users className="w-5 h-5 text-red-500" />
-                      <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">Places</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">{t("details.seats")}</span>
                     </div>
                     <div className="font-bold text-lg">{selectedCar.specs.seats}</div>
                   </div>
@@ -162,7 +164,7 @@ export default function CarDetailsModal({
                   <div className="bg-gray-100 dark:bg-black/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                     <div className="flex items-center space-x-2 mb-2">
                       <Fuel className="w-5 h-5 text-red-500" />
-                      <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">Consommation</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">{t("details.consumption")}</span>
                     </div>
                     <div className="font-bold text-sm">{selectedCar.specs.consumption}</div>
                   </div>
@@ -175,7 +177,7 @@ export default function CarDetailsModal({
               <div className="mb-6">
                 <h3 className="text-xl font-bold mb-4 flex items-center">
                   <Check className="w-5 h-5 mr-2 text-green-500" />
-                  Équipements Inclus
+                  {t("details.equipment")}
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {selectedCar.features.map((feature, idx) => (
@@ -199,7 +201,7 @@ export default function CarDetailsModal({
                   className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-red-500/50 transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
                 >
                   <span>🚗</span>
-                  <span>Réserver ce véhicule</span>
+                  <span>{t("details.reserveThis")}</span>
                 </button>
               )}
 
@@ -210,13 +212,13 @@ export default function CarDetailsModal({
                   className="w-full py-4 border-2 border-red-500/60 text-red-500 rounded-xl font-bold text-lg hover:bg-red-500/10 transition flex items-center justify-center space-x-2 disabled:opacity-50"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  <span>{purchaseState.sending ? "Envoi de la demande..." : "Demander l'achat"}</span>
+                  <span>{purchaseState.sending ? t("details.buySending") : t("details.buyRequest")}</span>
                 </button>
               )}
 
               {purchaseState.done && (
                 <p className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-600 dark:text-green-400 text-center">
-                  ✅ Demande d'achat envoyée ! Notre équipe vous contactera rapidement.
+                  {t("details.buySent")}
                 </p>
               )}
               {purchaseState.error && (
@@ -226,7 +228,7 @@ export default function CarDetailsModal({
               )}
 
               <p className="text-center text-gray-500 dark:text-gray-400 text-xs">
-                Réservation sécurisée • Annulation gratuite sous 24h
+                {t("details.footNote")}
               </p>
             </div>
           </div>

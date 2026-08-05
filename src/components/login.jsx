@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { X, User } from "lucide-react";
 import { useAuth } from "../context/userContext";
+import { useLang } from "../lib/i18n";
 
 function Connexion({
   showLoginModal,
@@ -9,6 +10,7 @@ function Connexion({
 }) {
   const [isRegistering, setIsRegistering] = useState(false);
   const { login, register } = useAuth();
+  const { t } = useLang();
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [registerForm, setRegisterForm] = useState({
@@ -48,7 +50,7 @@ function Connexion({
     e.preventDefault();
 
     if (registerForm.password !== registerForm.confirmPassword) {
-      setError("Les mots de passe ne correspondent pas");
+      setError(t("auth.passwordMismatch"));
       return;
     }
 
@@ -85,10 +87,10 @@ function Connexion({
               <User className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl font-bold mb-2">
-              {isRegistering ? "Créer un compte" : "Connexion"}
+              {isRegistering ? t("auth.registerTitle") : t("auth.loginTitle")}
             </h2>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              {isRegistering ? "Rejoignez Djib Drive" : "Accédez à votre compte"}
+              {isRegistering ? t("auth.registerSub") : t("auth.loginSub")}
             </p>
           </div>
 
@@ -99,7 +101,7 @@ function Connexion({
                 value={loginForm.email}
                 onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
                 className={inputClass}
-                placeholder="Email"
+                placeholder={t("auth.email")}
                 required
               />
               <input
@@ -107,7 +109,7 @@ function Connexion({
                 value={loginForm.password}
                 onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                 className={inputClass}
-                placeholder="Mot de passe"
+                placeholder={t("auth.password")}
                 required
               />
               {error && (
@@ -120,7 +122,7 @@ function Connexion({
                 disabled={submitting}
                 className="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                {submitting ? "Connexion..." : "Se connecter"}
+                {submitting ? t("auth.loggingIn") : t("auth.loginTitle")}
               </button>
               <div className="text-center">
                 <button
@@ -128,7 +130,7 @@ function Connexion({
                   onClick={() => { setIsRegistering(true); setError(""); }}
                   className="text-red-500 hover:text-red-400 text-sm transition-colors"
                 >
-                  Pas encore de compte ? Inscrivez-vous
+                  {t("auth.noAccount")}
                 </button>
               </div>
             </form>
@@ -136,14 +138,14 @@ function Connexion({
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <input
-                  placeholder="Nom"
+                  placeholder={t("auth.lastname")}
                   value={registerForm.nom}
                   onChange={(e) => setRegisterForm({ ...registerForm, nom: e.target.value })}
                   className={inputClass}
                   required
                 />
                 <input
-                  placeholder="Prénom"
+                  placeholder={t("auth.firstname")}
                   value={registerForm.prenom}
                   onChange={(e) => setRegisterForm({ ...registerForm, prenom: e.target.value })}
                   className={inputClass}
@@ -153,7 +155,7 @@ function Connexion({
 
               <input
                 type="email"
-                placeholder="Email"
+                placeholder={t("auth.email")}
                 value={registerForm.email}
                 onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
                 className={inputClass}
@@ -162,7 +164,7 @@ function Connexion({
 
               <input
                 type="tel"
-                placeholder="Téléphone"
+                placeholder={t("auth.phone")}
                 value={registerForm.telephone}
                 onChange={(e) => setRegisterForm({ ...registerForm, telephone: e.target.value })}
                 className={inputClass}
@@ -171,7 +173,7 @@ function Connexion({
 
               <input
                 type="password"
-                placeholder="Mot de passe"
+                placeholder={t("auth.password")}
                 value={registerForm.password}
                 onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
                 className={inputClass}
@@ -180,7 +182,7 @@ function Connexion({
 
               <input
                 type="password"
-                placeholder="Confirmer mot de passe"
+                placeholder={t("auth.confirmPassword")}
                 value={registerForm.confirmPassword}
                 onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
                 className={inputClass}
@@ -197,7 +199,7 @@ function Connexion({
                 disabled={submitting}
                 className="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                {submitting ? "Création du compte..." : "S'inscrire"}
+                {submitting ? t("auth.registering") : t("auth.registerBtn")}
               </button>
 
               <div className="text-center">
@@ -206,7 +208,7 @@ function Connexion({
                   onClick={() => { setIsRegistering(false); setError(""); }}
                   className="text-red-500 hover:text-red-400 text-sm transition-colors"
                 >
-                  Déjà un compte ? Connectez-vous
+                  {t("auth.haveAccount")}
                 </button>
               </div>
             </form>

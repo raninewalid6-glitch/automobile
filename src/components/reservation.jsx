@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { X, CalendarDays, CheckCircle2 } from "lucide-react";
 import { useAuth } from "../context/userContext";
 import { apiFetch } from "../lib/api";
+import { useLang } from "../lib/i18n";
 
 function Reservation({
   showReservationModal,
@@ -9,6 +10,7 @@ function Reservation({
   selectedCar,
 }) {
   const { user, token } = useAuth();
+  const { t, lang } = useLang();
 
   const [reservationForm, setReservationForm] = useState({
     nom: user?.nom || "",
@@ -85,25 +87,25 @@ function Reservation({
           <div className="w-16 h-16 bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-9 h-9 text-green-500" />
           </div>
-          <h2 className="text-2xl font-bold mb-2">Réservation enregistrée !</h2>
+          <h2 className="text-2xl font-bold mb-2">{t("resa.successTitle")}</h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-            Votre demande pour <span className="font-semibold text-gray-900 dark:text-white">{selectedCar.name}</span> est en attente de confirmation par notre équipe.
+            {t("resa.successText1")} <span className="font-semibold text-gray-900 dark:text-white">{selectedCar.name}</span> {t("resa.successText2")}
           </p>
           <div className="bg-gray-100 dark:bg-black/50 rounded-xl p-4 mb-6 text-left space-y-2 text-sm transition-colors duration-300">
             <div className="flex justify-between">
-              <span className="text-gray-500 dark:text-gray-400">Du</span>
-              <span className="font-semibold">{new Date(confirmedBooking.startDate).toLocaleDateString("fr-FR")}</span>
+              <span className="text-gray-500 dark:text-gray-400">{t("resa.from")}</span>
+              <span className="font-semibold">{new Date(confirmedBooking.startDate).toLocaleDateString(lang === "ar" ? "ar-DJ" : lang === "so" ? "so-DJ" : lang === "en" ? "en-GB" : "fr-FR")}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 dark:text-gray-400">Au</span>
-              <span className="font-semibold">{new Date(confirmedBooking.endDate).toLocaleDateString("fr-FR")}</span>
+              <span className="text-gray-500 dark:text-gray-400">{t("resa.to")}</span>
+              <span className="font-semibold">{new Date(confirmedBooking.endDate).toLocaleDateString(lang === "ar" ? "ar-DJ" : lang === "so" ? "so-DJ" : lang === "en" ? "en-GB" : "fr-FR")}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 dark:text-gray-400">Durée</span>
-              <span className="font-semibold">{confirmedBooking.days} jour{confirmedBooking.days > 1 ? "s" : ""}</span>
+              <span className="text-gray-500 dark:text-gray-400">{t("resa.durationShort")}</span>
+              <span className="font-semibold">{confirmedBooking.days} {t("resa.days")}</span>
             </div>
             <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
-              <span className="font-bold">Total</span>
+              <span className="font-bold">{t("resa.totalShort")}</span>
               <span className="font-bold text-red-500">{confirmedBooking.totalAmount.toLocaleString()} FDJ</span>
             </div>
           </div>
@@ -111,7 +113,7 @@ function Reservation({
             onClick={closeModal}
             className="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
           >
-            Fermer
+            {t("resa.close")}
           </button>
         </div>
         </div>
@@ -135,9 +137,9 @@ function Reservation({
             <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <CalendarDays className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Réserver votre véhicule</h2>
+            <h2 className="text-2xl font-bold mb-2">{t("resa.title")}</h2>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Remplissez le formulaire pour confirmer votre réservation
+              {t("resa.sub")}
             </p>
           </div>
 
@@ -162,7 +164,7 @@ function Reservation({
           <form onSubmit={handleReservationSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Nom</label>
+                <label className={labelClass}>{t("auth.lastname")}</label>
                 <input
                   type="text"
                   value={reservationForm.nom}
@@ -172,7 +174,7 @@ function Reservation({
                 />
               </div>
               <div>
-                <label className={labelClass}>Prénom</label>
+                <label className={labelClass}>{t("auth.firstname")}</label>
                 <input
                   type="text"
                   value={reservationForm.prenom}
@@ -184,7 +186,7 @@ function Reservation({
             </div>
 
             <div>
-              <label className={labelClass}>Numéro de téléphone</label>
+              <label className={labelClass}>{t("resa.phone")}</label>
               <input
                 type="tel"
                 value={reservationForm.telephone}
@@ -196,7 +198,7 @@ function Reservation({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Date de début</label>
+                <label className={labelClass}>{t("resa.startDate")}</label>
                 <input
                   type="date"
                   value={reservationForm.dateDebut}
@@ -207,7 +209,7 @@ function Reservation({
                 />
               </div>
               <div>
-                <label className={labelClass}>Date de fin</label>
+                <label className={labelClass}>{t("resa.endDate")}</label>
                 <input
                   type="date"
                   value={reservationForm.dateFin}
@@ -220,12 +222,12 @@ function Reservation({
             </div>
 
             <div>
-              <label className={labelClass}>Message (optionnel)</label>
+              <label className={labelClass}>{t("resa.messageOpt")}</label>
               <textarea
                 value={reservationForm.message}
                 onChange={(e) => setReservationForm({ ...reservationForm, message: e.target.value })}
                 className={`${inputClass} h-24 resize-none`}
-                placeholder="Informations supplémentaires..."
+                placeholder={t("resa.messagePh")}
               />
             </div>
 
@@ -233,18 +235,18 @@ function Reservation({
             {reservationForm.dateDebut && reservationForm.dateFin && (
               <div className="bg-red-50 dark:bg-gradient-to-r dark:from-red-600/20 dark:to-orange-600/20 border border-red-200 dark:border-red-600/30 rounded-xl p-4 transition-colors duration-300">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-500 dark:text-gray-400">Durée de location</span>
+                  <span className="text-gray-500 dark:text-gray-400">{t("resa.duration")}</span>
                   <span className="font-semibold">
-                    {Math.ceil((new Date(reservationForm.dateFin) - new Date(reservationForm.dateDebut)) / (1000 * 60 * 60 * 24))} jours
+                    {Math.ceil((new Date(reservationForm.dateFin) - new Date(reservationForm.dateDebut)) / (1000 * 60 * 60 * 24))} {t("resa.days")}
                   </span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-500 dark:text-gray-400">Prix par jour</span>
+                  <span className="text-gray-500 dark:text-gray-400">{t("resa.pricePerDay")}</span>
                   <span className="font-semibold">{selectedCar.pricePerDay} FDJ</span>
                 </div>
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold">Prix Total</span>
+                    <span className="text-lg font-bold">{t("resa.total")}</span>
                     <span className="text-2xl font-bold text-red-500">
                       {calculateTotalPrice().toLocaleString()} FDJ
                     </span>
@@ -264,7 +266,7 @@ function Reservation({
               className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold text-lg hover:shadow-lg hover:shadow-red-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!reservationForm.dateDebut || !reservationForm.dateFin || submitting}
             >
-              {submitting ? "Envoi en cours..." : "Confirmer la réservation"}
+              {submitting ? t("resa.sending") : t("resa.confirm")}
             </button>
           </form>
         </div>

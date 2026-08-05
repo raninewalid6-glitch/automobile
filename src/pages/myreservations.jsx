@@ -4,19 +4,20 @@ import { CalendarDays, ShoppingCart } from "lucide-react";
 import Footer from "../components/footer";
 import { useAuth } from "../context/userContext";
 import { apiFetch } from "../lib/api";
-import { bookingStatusLabels, bookingStatusStyles } from "../admin/lib/bookingOptions";
-import { purchaseStatusLabels, purchaseStatusStyles } from "../admin/lib/purchaseOptions";
+import { bookingStatusStyles } from "../admin/lib/bookingOptions";
+import { purchaseStatusStyles } from "../admin/lib/purchaseOptions";
+import { useLang } from "../lib/i18n";
 
 const currencyFormatter = new Intl.NumberFormat("fr-FR");
 
-const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-});
+const localeMap = { fr: "fr-FR", en: "en-GB", ar: "ar-DJ", so: "so-DJ" };
 
-function formatDate(value) {
-  return dateFormatter.format(new Date(`${value}T00:00:00`));
+function formatDate(value, lang) {
+  return new Intl.DateTimeFormat(localeMap[lang] || "fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(`${value}T00:00:00`));
 }
 
 function Badge({ label, style }) {
@@ -29,6 +30,7 @@ function Badge({ label, style }) {
 
 export default function MyReservations() {
   const { isAuthenticated, user, token } = useAuth();
+  const { t, lang } = useLang();
   const [bookings, setBookings] = useState([]);
   const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,10 +58,10 @@ export default function MyReservations() {
       <section className="pt-24 sm:pt-32 pb-8 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3">
-            Mes <span className="text-red-500">Réservations</span>
+            {t("myresa.title1")} <span className="text-red-500">{t("myresa.title2")}</span>
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">
-            {isAuthenticated ? `Bonjour ${user?.prenom}, voici tes locations et demandes d'achat.` : "Connecte-toi pour voir tes réservations."}
+            {isAuthenticated ? `${t("nav.hello")} ${user?.prenom}, ${t("myresa.greeting")}` : t("myresa.loginPrompt")}
           </p>
         </div>
       </section>
@@ -68,13 +70,13 @@ export default function MyReservations() {
         {!isAuthenticated ? (
           <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-10 text-center">
             <p className="text-gray-500 dark:text-gray-400">
-              Tu n'es pas connecté. Va sur la page{" "}
-              <Link to="/cars" className="font-semibold text-red-500 hover:underline">Nos Voitures</Link>{" "}
-              et clique sur « Se connecter ».
+              {t("myresa.notConnected1")}{" "}
+              <Link to="/cars" className="font-semibold text-red-500 hover:underline">{t("nav.cars")}</Link>{" "}
+              {t("myresa.notConnected2")}
             </p>
           </div>
         ) : loading ? (
-          <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">Chargement...</p>
+          <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">{t("myresa.loading")}</p>
         ) : error ? (
           <p className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-500 text-center">
             {error}
@@ -85,12 +87,12 @@ export default function MyReservations() {
             <section>
               <h2 className="mb-5 flex items-center gap-3 text-2xl font-bold">
                 <CalendarDays className="h-6 w-6 text-red-500" />
-                Mes locations ({bookings.length})
+                {t("myresa.rentals")} ({bookings.length})
               </h2>
               {bookings.length === 0 ? (
                 <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-8 text-center text-gray-500 dark:text-gray-400">
-                  Aucune location pour le moment.{" "}
-                  <Link to="/cars" className="font-semibold text-red-500 hover:underline">Découvre nos voitures !</Link>
+                  {t("myresa.noRentals")}{" "}
+                  <Link to="/cars" className="font-semibold text-red-500 hover:underline">{t("myresa.discover")}</Link>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -100,13 +102,13 @@ export default function MyReservations() {
                         <img src={booking.car.image} alt={booking.car.title} className="h-24 w-full sm:w-36 rounded-xl object-cover" />
                       ) : (
                         <div className="flex h-24 w-full sm:w-36 items-center justify-center rounded-xl bg-gray-200 dark:bg-gray-800 text-xs font-bold text-gray-500">
-                          Aucune photo
+                          {t("myresa.noPhoto")}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-lg truncate">{booking.car.title}</h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Du {formatDate(booking.startDate)} au {formatDate(booking.endDate)} · {booking.days} jour{booking.days > 1 ? "s" : ""}
+                          {t("resa.from")} {formatDate(booking.startDate, lang)} {t("resa.to").toLowerCase()} {formatDate(booking.endDate, lang)} · {booking.days} {t("resa.days")}
                         </p>
                         <p className="mt-1 text-sm font-semibold text-orange-500">
                           {currencyFormatter.format(booking.car.pricePerDay)} FDJ/jour
@@ -115,7 +117,7 @@ export default function MyReservations() {
                       <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
                         <p className="text-xl font-bold text-red-500">{currencyFormatter.format(booking.totalAmount)} FDJ</p>
                         <Badge
-                          label={bookingStatusLabels[booking.status] ?? booking.status}
+                          label={t(`status.${booking.status}`) !== `status.${booking.status}` ? t(`status.${booking.status}`) : booking.status}
                           style={bookingStatusStyles[booking.status] ?? bookingStatusStyles.PENDING}
                         />
                       </div>
@@ -129,11 +131,11 @@ export default function MyReservations() {
             <section>
               <h2 className="mb-5 flex items-center gap-3 text-2xl font-bold">
                 <ShoppingCart className="h-6 w-6 text-red-500" />
-                Mes demandes d'achat ({purchases.length})
+                {t("myresa.purchases")} ({purchases.length})
               </h2>
               {purchases.length === 0 ? (
                 <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-8 text-center text-gray-500 dark:text-gray-400">
-                  Aucune demande d'achat pour le moment.
+                  {t("myresa.noPurchases")}
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -143,13 +145,13 @@ export default function MyReservations() {
                         <img src={purchase.car.image} alt={purchase.car.title} className="h-24 w-full sm:w-36 rounded-xl object-cover" />
                       ) : (
                         <div className="flex h-24 w-full sm:w-36 items-center justify-center rounded-xl bg-gray-200 dark:bg-gray-800 text-xs font-bold text-gray-500">
-                          Aucune photo
+                          {t("myresa.noPhoto")}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-lg truncate">{purchase.car.title}</h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Demande envoyée le {new Date(purchase.createdAt).toLocaleDateString("fr-FR")}
+                          {t("myresa.sentOn")} {new Date(purchase.createdAt).toLocaleDateString(localeMap[lang] || "fr-FR")}
                         </p>
                         {purchase.note && (
                           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 italic truncate">« {purchase.note} »</p>
@@ -158,7 +160,7 @@ export default function MyReservations() {
                       <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
                         <p className="text-xl font-bold text-red-500">{currencyFormatter.format(purchase.price)} FDJ</p>
                         <Badge
-                          label={purchaseStatusLabels[purchase.status] ?? purchase.status}
+                          label={t(`pstatus.${purchase.status}`) !== `pstatus.${purchase.status}` ? t(`pstatus.${purchase.status}`) : purchase.status}
                           style={purchaseStatusStyles[purchase.status] ?? purchaseStatusStyles.PENDING}
                         />
                       </div>
