@@ -93,7 +93,7 @@ export default function Home() {
       {/* Hero Section : carrousel plein écran avec le texte par-dessus */}
       <HeroCarousel slides={heroSlides}>
         <div className="max-w-7xl mx-auto flex h-full items-end sm:items-center px-4 sm:px-6 pt-16 sm:pt-20 pb-32 sm:pb-8">
-          <div className="max-w-2xl px-8 sm:px-0">
+          <div className="max-w-2xl">
             <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600/30 border border-red-500/40 rounded-full mb-3 sm:mb-6 backdrop-blur-sm">
               <span className="text-red-300 text-xs sm:text-sm font-medium">
                 {t("hero.badge")}

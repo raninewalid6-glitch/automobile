@@ -65,16 +65,16 @@ export default function HeroCarousel({ slides, children }) {
           <button
             onClick={() => goTo(current - 1)}
             aria-label="Slide précédente"
-            className="absolute left-2 top-1/3 sm:top-1/2 z-20 flex h-9 w-9 sm:h-11 sm:w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition hover:bg-red-600 sm:left-5"
+            className="absolute left-5 top-1/2 z-20 hidden sm:flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition hover:bg-red-600"
           >
-            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+            <ChevronLeft className="h-6 w-6" />
           </button>
           <button
             onClick={() => goTo(current + 1)}
             aria-label="Slide suivante"
-            className="absolute right-2 top-1/3 sm:top-1/2 z-20 flex h-9 w-9 sm:h-11 sm:w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition hover:bg-red-600 sm:right-5"
+            className="absolute right-5 top-1/2 z-20 hidden sm:flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition hover:bg-red-600"
           >
-            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+            <ChevronRight className="h-6 w-6" />
           </button>
 
           {/* Points de navigation */}
