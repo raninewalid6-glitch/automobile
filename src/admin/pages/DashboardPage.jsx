@@ -130,12 +130,8 @@ export default function DashboardPage() {
             <p className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-700 dark:text-red-200">
               Dashboard
             </p>
-            <h2 className="max-w-4xl text-3xl font-black leading-tight tracking-tight text-gray-900 dark:text-white lg:text-5xl lg:leading-tight">
-              Espace <span className="whitespace-nowrap bg-transparent text-gray-900 dark:text-white">Admin/SuperAdmin</span> pour piloter la plateforme automobile.
-            </h2>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-gray-500 dark:text-gray-400">
-              Indicateurs de location, vente et commissions calculés en direct depuis la base de données.
-            </p>
+            
+            
           </div>
           <div className="rounded-[1.5rem] border border-orange-500/20 bg-gradient-to-br from-red-600/20 to-orange-500/10 p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-orange-700 dark:text-orange-200">Revenu total</p>
