@@ -92,22 +92,22 @@ export default function Home() {
 
       {/* Hero Section : carrousel plein écran avec le texte par-dessus */}
       <HeroCarousel slides={heroSlides}>
-        <div className="max-w-7xl mx-auto flex h-full items-center px-4 sm:px-6 pt-16 sm:pt-20">
+        <div className="max-w-7xl mx-auto flex h-full items-center px-4 sm:px-6 pt-16 sm:pt-20 pb-24 sm:pb-8">
           <div className="max-w-2xl">
-            <div className="inline-block px-4 py-2 bg-red-600/30 border border-red-500/40 rounded-full mb-6 backdrop-blur-sm">
-              <span className="text-red-300 text-sm font-medium">
+            <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600/30 border border-red-500/40 rounded-full mb-4 sm:mb-6 backdrop-blur-sm">
+              <span className="text-red-300 text-xs sm:text-sm font-medium">
                 {t("hero.badge")}
               </span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight text-white">
+            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight text-white">
               {t("hero.title1")}
               <span className="block bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent">
                 {t("hero.title2")}
               </span>
             </h1>
 
-            <p className="text-base sm:text-xl text-gray-200 mb-8 leading-relaxed drop-shadow">
+            <p className="text-sm sm:text-xl text-gray-200 mb-6 sm:mb-8 leading-relaxed drop-shadow line-clamp-3 sm:line-clamp-none">
               {t("hero.text")}
             </p>
 

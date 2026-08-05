@@ -25,7 +25,7 @@ export default function HeroCarousel({ slides, children }) {
   const activeSlide = slides[current];
 
   return (
-    <section className="relative h-[85vh] min-h-[560px] overflow-hidden">
+    <section className="relative h-[100svh] sm:h-[85vh] min-h-[500px] overflow-hidden">
       {/* Piste d'images qui glisse horizontalement */}
       <div
         className="absolute inset-0 flex transition-transform duration-[900ms] ease-in-out"
@@ -51,10 +51,10 @@ export default function HeroCarousel({ slides, children }) {
 
       {/* Légende de la slide active : nom + prix de la voiture */}
       {activeSlide?.title && (
-        <div className="absolute bottom-16 right-4 sm:bottom-20 sm:right-8 z-10 max-w-[60%] text-right">
-          <p className="truncate text-lg font-bold text-white drop-shadow sm:text-2xl">{activeSlide.title}</p>
+        <div className="absolute bottom-14 right-3 sm:bottom-20 sm:right-8 z-10 max-w-[55%] sm:max-w-[60%] text-right pointer-events-none">
+          <p className="truncate text-sm font-bold text-white drop-shadow sm:text-2xl">{activeSlide.title}</p>
           {activeSlide.subtitle && (
-            <p className="text-sm font-semibold text-orange-300 sm:text-base">{activeSlide.subtitle}</p>
+            <p className="text-xs font-semibold text-orange-300 sm:text-base">{activeSlide.subtitle}</p>
           )}
         </div>
       )}
