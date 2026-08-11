@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
-import { BadgeDollarSign, Building2, CheckCircle2, CreditCard, Palette, Percent, Save, Settings, WalletCards } from "lucide-react";
+import { BadgeDollarSign, Building2, CheckCircle2, CreditCard, Percent, Save, Settings, WalletCards } from "lucide-react";
+import { useLang } from "../../lib/i18n";
 
-// Montants affichés en francs Djibouti
 const currencyFormatter = {
   format: (value) => `${new Intl.NumberFormat("fr-FR").format(value ?? 0)} FDJ`,
 };
@@ -10,7 +10,6 @@ const initialSettings = {
   branding: {
     platformName: "DriveUp",
     supportEmail: "support@driveup.com",
-    accentColor: "#dc2626",
     publicTagline: "Location et vente automobile premium",
   },
   payment: {
@@ -27,22 +26,8 @@ const initialSettings = {
   },
 };
 
-const paymentMethods = [
-  { key: "waafiEnabled", label: "WAAFI", helper: "Paiements mobiles WAAFI actifs dans le checkout." },
-  { key: "dmoneyEnabled", label: "D-Money", helper: "Paiements D-Money proposés aux clients." },
-  { key: "cardEnabled", label: "Carte bancaire", helper: "Mastercard / carte bancaire visible côté client." },
-  { key: "cashValidation", label: "Validation cash", helper: "Les paiements cash restent à valider par un admin." },
-];
-
-const transactionTypes = [
-  { value: "globalRate", label: "Globale" },
-  { value: "rentalRate", label: "Location" },
-  { value: "saleRate", label: "Vente" },
-];
-
 function toNumber(value) {
   const parsedValue = Number(value);
-
   return Number.isFinite(parsedValue) ? parsedValue : 0;
 }
 
@@ -76,11 +61,25 @@ function Field({ label, children, helper }) {
 }
 
 export default function SettingsPage() {
+  const { t } = useLang();
   const [settings, setSettings] = useState(initialSettings);
   const [savedSettings, setSavedSettings] = useState(initialSettings);
   const [exampleTotal, setExampleTotal] = useState(1200);
   const [exampleType, setExampleType] = useState("rentalRate");
-  const [saveMessage, setSaveMessage] = useState("Paramètres mock non sauvegardés");
+  const [saveMessage, setSaveMessage] = useState(t("admin.settings.noChanges"));
+
+  const paymentMethods = [
+    { key: "waafiEnabled", label: t("admin.pm.waafi"), helper: t("admin.pm.waafiHelper") },
+    { key: "dmoneyEnabled", label: t("admin.pm.dmoney"), helper: t("admin.pm.dmoneyHelper") },
+    { key: "cardEnabled", label: t("admin.pm.card"), helper: t("admin.pm.cardHelper") },
+    { key: "cashValidation", label: t("admin.pm.cash"), helper: t("admin.pm.cashHelper") },
+  ];
+
+  const transactionTypes = [
+    { value: "globalRate", label: t("admin.settings.global") },
+    { value: "rentalRate", label: t("admin.settings.rental") },
+    { value: "saleRate", label: t("admin.settings.sale") },
+  ];
 
   const example = useMemo(() => {
     const total = Math.max(toNumber(exampleTotal), 0);
@@ -96,48 +95,39 @@ export default function SettingsPage() {
   }, [exampleTotal, exampleType, settings.commission]);
 
   const savedCommissionPreview = useMemo(() => [
-    { label: "Globale", value: savedSettings.commission.globalRate },
-    { label: "Location", value: savedSettings.commission.rentalRate },
-    { label: "Vente", value: savedSettings.commission.saleRate },
-  ], [savedSettings.commission]);
+    { label: t("admin.settings.global"), value: savedSettings.commission.globalRate },
+    { label: t("admin.settings.rental"), value: savedSettings.commission.rentalRate },
+    { label: t("admin.settings.sale"), value: savedSettings.commission.saleRate },
+  ], [savedSettings.commission, t]);
 
   const updateBranding = (key, value) => {
     setSettings((current) => ({
       ...current,
-      branding: {
-        ...current.branding,
-        [key]: value,
-      },
+      branding: { ...current.branding, [key]: value },
     }));
-    setSaveMessage("Modifications locales en attente");
+    setSaveMessage(t("admin.settings.pendingChanges"));
   };
 
   const updatePayment = (key, value) => {
     setSettings((current) => ({
       ...current,
-      payment: {
-        ...current.payment,
-        [key]: value,
-      },
+      payment: { ...current.payment, [key]: value },
     }));
-    setSaveMessage("Modifications locales en attente");
+    setSaveMessage(t("admin.settings.pendingChanges"));
   };
 
   const updateCommission = (key, value) => {
     setSettings((current) => ({
       ...current,
-      commission: {
-        ...current.commission,
-        [key]: value,
-      },
+      commission: { ...current.commission, [key]: value },
     }));
-    setSaveMessage("Modifications locales en attente");
+    setSaveMessage(t("admin.settings.pendingChanges"));
   };
 
   const handleSave = (event) => {
     event.preventDefault();
     setSavedSettings(settings);
-    setSaveMessage(`Sauvegardé localement à ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`);
+    setSaveMessage(`${t("admin.settings.savedAt")} ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`);
   };
 
   return (
@@ -146,17 +136,17 @@ export default function SettingsPage() {
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-700 dark:text-red-200">
-              Settings admin mock
+              {t("admin.settings.badge")}
             </p>
-            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">Paramètres de la plateforme</h2>
+            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">{t("admin.settings.title")}</h2>
             <p className="mt-5 max-w-2xl text-base leading-8 text-gray-500 dark:text-gray-400">
-              Gérez le branding, les moyens de paiement et les commissions sans backend. Le bouton enregistrer met uniquement à jour l'état local de cette page.
+              {t("admin.settings.subtitle")}
             </p>
           </div>
           <div className="rounded-[1.5rem] border border-orange-500/20 bg-gradient-to-br from-red-600/20 to-orange-500/10 p-6">
             <div className="flex items-center gap-3 text-orange-700 dark:text-orange-100">
               <Settings className="h-6 w-6" />
-              <p className="text-sm font-semibold uppercase tracking-[0.25em]">Dernière sauvegarde</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.25em]">{t("admin.settings.lastSave")}</p>
             </div>
             <p className="mt-4 text-2xl font-black text-gray-900 dark:text-white">{saveMessage}</p>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -172,16 +162,16 @@ export default function SettingsPage() {
 
       <div className="grid gap-7 xl:grid-cols-[1fr_0.9fr]">
         <div className="space-y-7">
-          <SettingsCard icon={Palette} eyebrow="Branding settings" title="Identité publique">
+          <SettingsCard icon={Settings} eyebrow="Branding" title={t("admin.settings.brandingTitle")}>
             <div className="grid gap-5 md:grid-cols-2">
-              <Field label="Nom plateforme" helper="Affiché dans l'admin et les futures pages publiques.">
+              <Field label={t("admin.settings.platformName")} helper={t("admin.settings.platformNameHelper")}>
                 <input
                   className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:border-red-500/60"
                   onChange={(event) => updateBranding("platformName", event.target.value)}
                   value={settings.branding.platformName}
                 />
               </Field>
-              <Field label="Email support">
+              <Field label={t("admin.settings.email")}>
                 <input
                   className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:border-red-500/60"
                   onChange={(event) => updateBranding("supportEmail", event.target.value)}
@@ -189,18 +179,7 @@ export default function SettingsPage() {
                   value={settings.branding.supportEmail}
                 />
               </Field>
-              <Field label="Couleur accent" helper="Prévisualisation locale du thème principal.">
-                <div className="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3">
-                  <input
-                    className="h-10 w-12 cursor-pointer rounded-lg border-0 bg-transparent"
-                    onChange={(event) => updateBranding("accentColor", event.target.value)}
-                    type="color"
-                    value={settings.branding.accentColor}
-                  />
-                  <span className="font-mono text-sm text-gray-600 dark:text-gray-300">{settings.branding.accentColor}</span>
-                </div>
-              </Field>
-              <Field label="Tagline publique">
+              <Field label={t("admin.settings.tagline")}>
                 <input
                   className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:border-red-500/60"
                   onChange={(event) => updateBranding("publicTagline", event.target.value)}
@@ -210,9 +189,9 @@ export default function SettingsPage() {
             </div>
           </SettingsCard>
 
-          <SettingsCard icon={CreditCard} eyebrow="Payment settings" title="Moyens de paiement">
+          <SettingsCard icon={CreditCard} eyebrow="Payment" title={t("admin.settings.paymentTitle")}>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Devise par défaut" helper="Mock uniquement, aucune conversion réelle n'est effectuée.">
+              <Field label={t("admin.settings.currency")} helper={t("admin.settings.currencyHelper")}>
                 <select
                   className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition focus:border-red-500/60"
                   onChange={(event) => updatePayment("defaultCurrency", event.target.value)}
@@ -224,9 +203,9 @@ export default function SettingsPage() {
                 </select>
               </Field>
               <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
-                <p className="text-sm font-bold text-gray-900 dark:text-white">État mock</p>
+                <p className="text-sm font-bold text-gray-900 dark:text-white">{t("admin.settings.methodsTitle")}</p>
                 <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-                  Les options activées sont enregistrées dans le state local et seront réinitialisées au rechargement.
+                  {t("admin.settings.methodsSub")}
                 </p>
               </div>
               {paymentMethods.map((method) => (
@@ -248,9 +227,9 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-7">
-          <SettingsCard icon={Percent} eyebrow="Commission settings" title="Taux de commission">
+          <SettingsCard icon={Percent} eyebrow="Commission" title={t("admin.settings.commTitle")}>
             <div className="space-y-5">
-              <Field label="Commission globale %" helper="Taux de fallback pour les opérations non catégorisées.">
+              <Field label={t("admin.settings.globalComm")} helper={t("admin.settings.globalCommHelper")}>
                 <input
                   className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition focus:border-red-500/60"
                   min="0"
@@ -260,7 +239,7 @@ export default function SettingsPage() {
                   value={settings.commission.globalRate}
                 />
               </Field>
-              <Field label="Commission location %">
+              <Field label={t("admin.settings.rentalComm")}>
                 <input
                   className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition focus:border-red-500/60"
                   min="0"
@@ -270,7 +249,7 @@ export default function SettingsPage() {
                   value={settings.commission.rentalRate}
                 />
               </Field>
-              <Field label="Commission vente %">
+              <Field label={t("admin.settings.saleComm")}>
                 <input
                   className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition focus:border-red-500/60"
                   min="0"
@@ -283,10 +262,10 @@ export default function SettingsPage() {
             </div>
           </SettingsCard>
 
-          <SettingsCard icon={BadgeDollarSign} eyebrow="Exemple dynamique" title="Répartition owner">
+          <SettingsCard icon={BadgeDollarSign} eyebrow="Example" title={t("admin.settings.exampleTitle")}>
             <div className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Total transaction">
+                <Field label={t("admin.settings.totalTransaction")}>
                   <input
                     className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition focus:border-red-500/60"
                     min="0"
@@ -295,7 +274,7 @@ export default function SettingsPage() {
                     value={exampleTotal}
                   />
                 </Field>
-                <Field label="Type commission">
+                <Field label={t("admin.settings.commType")}>
                   <select
                     className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition focus:border-red-500/60"
                     onChange={(event) => setExampleType(event.target.value)}
@@ -323,7 +302,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="rounded-3xl border border-orange-500/20 bg-orange-500/10 p-5">
                   <div className="flex items-center justify-between gap-4">
-                    <span className="flex items-center gap-2 text-sm font-bold text-orange-700 dark:text-orange-100"><CheckCircle2 className="h-4 w-4" /> Owner amount</span>
+                    <span className="flex items-center gap-2 text-sm font-bold text-orange-700 dark:text-orange-100"><CheckCircle2 className="h-4 w-4" /> {t("admin.settings.ownerAmount")}</span>
                     <span className="text-xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(example.ownerAmount)}</span>
                   </div>
                 </div>
@@ -335,7 +314,7 @@ export default function SettingsPage() {
 
       <div className="sticky bottom-24 z-20 flex justify-end lg:bottom-6">
         <button className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-6 py-4 text-sm font-black text-white shadow-2xl shadow-red-600/30 transition hover:scale-[1.01]" type="submit">
-          <Save className="h-5 w-5" /> Save settings mock
+          <Save className="h-5 w-5" /> {t("admin.settings.save")}
         </button>
       </div>
     </form>

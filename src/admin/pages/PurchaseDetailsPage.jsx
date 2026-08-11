@@ -4,6 +4,7 @@ import { ArrowLeft, CarFront, CheckCircle2, FileText, Flag, ShoppingCart, UserRo
 import { apiFetch } from "../../lib/api";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import { purchaseStatusLabels, purchaseStatusStyles } from "../lib/purchaseOptions";
+import { useLang } from "../../lib/i18n";
 
 // Montants affichés en francs Djibouti
 const currencyFormatter = {
@@ -55,6 +56,7 @@ export default function PurchaseDetailsPage() {
   const [purchase, setPurchase] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { t } = useLang();
 
   useEffect(() => {
     apiFetch(`/admin/purchases/${id}`, { token })
@@ -64,7 +66,7 @@ export default function PurchaseDetailsPage() {
   }, [id, token]);
 
   const updateStatus = async (status) => {
-    if (status === "COMPLETED" && !window.confirm("Finaliser la vente ? La voiture sera retirée du catalogue.")) {
+    if (status === "COMPLETED" && !window.confirm(t("admin.purchases.confirmFinalize"))) {
       return;
     }
     try {
@@ -78,17 +80,17 @@ export default function PurchaseDetailsPage() {
 
   if (loading) {
     return (
-      <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">Chargement de la demande d'achat...</p>
+      <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">{t("admin.purchaseDetail.loading")}</p>
     );
   }
 
   if (!purchase) {
     return (
       <div className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-8 text-center shadow-2xl shadow-black/30">
-        <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-700 dark:text-red-300">Demande introuvable</p>
-        <h2 className="mt-3 text-3xl font-black text-gray-900 dark:text-white">{error || `Aucune demande ne correspond à ${id}`}</h2>
+        <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-700 dark:text-red-300">{t("admin.purchaseDetail.notFound")}</p>
+        <h2 className="mt-3 text-3xl font-black text-gray-900 dark:text-white">{error || `${t("admin.purchaseDetail.notFoundMsg")} ${id}`}</h2>
         <Link className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 font-bold text-white" to="/admin/purchases">
-          <ArrowLeft className="h-4 w-4" /> Retour aux demandes
+          <ArrowLeft className="h-4 w-4" /> {t("admin.purchaseDetail.backToListShort")}
         </Link>
       </div>
     );
@@ -98,7 +100,7 @@ export default function PurchaseDetailsPage() {
     <div className="space-y-7">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Link className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400 transition hover:text-gray-900 dark:hover:text-white" to="/admin/purchases">
-          <ArrowLeft className="h-4 w-4" /> Retour aux demandes d'achat
+          <ArrowLeft className="h-4 w-4" /> {t("admin.purchaseDetail.backToList")}
         </Link>
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill status={purchase.status} />
@@ -107,7 +109,7 @@ export default function PurchaseDetailsPage() {
               className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-bold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20"
               onClick={() => updateStatus("ACCEPTED")}
             >
-              <CheckCircle2 className="h-4 w-4" /> Accepter
+              <CheckCircle2 className="h-4 w-4" /> {t("admin.purchases.accept")}
             </button>
           )}
           {purchase.status === "ACCEPTED" && (
@@ -115,7 +117,7 @@ export default function PurchaseDetailsPage() {
               className="inline-flex items-center gap-2 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm font-bold text-blue-700 dark:text-blue-300 hover:bg-blue-500/20"
               onClick={() => updateStatus("COMPLETED")}
             >
-              <Flag className="h-4 w-4" /> Finaliser la vente
+              <Flag className="h-4 w-4" /> {t("admin.purchases.finalize")}
             </button>
           )}
           {(purchase.status === "PENDING" || purchase.status === "ACCEPTED") && (
@@ -123,7 +125,7 @@ export default function PurchaseDetailsPage() {
               className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-700 dark:text-red-300 hover:bg-red-500/20"
               onClick={() => updateStatus("REJECTED")}
             >
-              <XCircle className="h-4 w-4" /> Rejeter
+              <XCircle className="h-4 w-4" /> {t("admin.purchases.reject")}
             </button>
           )}
         </div>
@@ -139,23 +141,23 @@ export default function PurchaseDetailsPage() {
         <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="p-6 lg:p-8">
             <p className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-700 dark:text-red-200">
-              Détails demande d'achat
+              {t("admin.purchaseDetail.badge")}
             </p>
             <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-4xl">
-              Demande {purchase.id.slice(0, 8).toUpperCase()}
+              {t("admin.purchaseDetail.requestTitle")} {purchase.id.slice(0, 8).toUpperCase()}
             </h2>
             <p className="mt-4 text-sm leading-7 text-gray-500 dark:text-gray-400">
-              {purchase.car.title} — demande envoyée par {purchase.client.name} le {formatDateTime(purchase.createdAt)}.
+              {purchase.car.title} — {t("admin.purchaseDetail.sentBy")} {purchase.client.name} {t("admin.purchaseDetail.onDate")} {formatDateTime(purchase.createdAt)}.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div className="rounded-3xl border border-orange-500/20 bg-orange-500/10 p-5">
-                <p className="text-sm text-orange-700 dark:text-orange-200">Prix de vente</p>
+                <p className="text-sm text-orange-700 dark:text-orange-200">{t("admin.purchaseDetail.salePrice")}</p>
                 <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(purchase.price)}</p>
               </div>
               <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Décision</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.purchaseDetail.decision")}</p>
                 <p className="mt-2 text-xl font-black text-gray-900 dark:text-white">
-                  {purchase.decidedAt ? formatDateTime(purchase.decidedAt) : "En attente"}
+                  {purchase.decidedAt ? formatDateTime(purchase.decidedAt) : t("admin.purchaseDetail.pending")}
                 </p>
               </div>
             </div>
@@ -165,11 +167,11 @@ export default function PurchaseDetailsPage() {
               <img src={purchase.car.image} alt={purchase.car.title} className="h-56 w-full rounded-3xl object-cover" />
             ) : (
               <div className="flex h-56 w-full items-center justify-center rounded-3xl bg-black/20 text-sm font-bold text-gray-400">
-                Aucune photo
+                {t("admin.purchaseDetail.noPhoto")}
               </div>
             )}
             <div className="mt-4 flex items-center justify-between gap-4 rounded-3xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/20 p-4">
-              <span className="text-gray-500 dark:text-gray-400">Statut</span>
+              <span className="text-gray-500 dark:text-gray-400">{t("admin.th.status")}</span>
               <StatusPill status={purchase.status} />
             </div>
           </div>
@@ -177,35 +179,35 @@ export default function PurchaseDetailsPage() {
       </section>
 
       <section className="grid gap-7 xl:grid-cols-3">
-        <DetailCard icon={UserRound} title="Acheteur">
+        <DetailCard icon={UserRound} title={t("admin.purchaseDetail.buyer")}>
           <DefinitionList items={[
-            ["Nom", purchase.client.name],
-            ["Téléphone", purchase.client.phone],
-            ["Email", purchase.client.email],
-            ["Ville", purchase.client.city],
+            [t("admin.purchaseDetail.name"), purchase.client.name],
+            [t("admin.purchaseDetail.phone"), purchase.client.phone],
+            [t("admin.purchaseDetail.email"), purchase.client.email],
+            [t("admin.carDetail.city"), purchase.client.city],
           ]} />
         </DetailCard>
 
-        <DetailCard icon={CarFront} title="Voiture">
+        <DetailCard icon={CarFront} title={t("admin.purchaseDetail.car")}>
           <DefinitionList items={[
-            ["Véhicule", purchase.car.title],
-            ["Plaque", purchase.car.plateNumber],
-            ["Année", purchase.car.year],
-            ["Ville", purchase.car.city],
+            [t("admin.purchaseDetail.vehicle"), purchase.car.title],
+            [t("admin.purchaseDetail.plate"), purchase.car.plateNumber],
+            [t("admin.purchaseDetail.year"), purchase.car.year],
+            [t("admin.carDetail.city"), purchase.car.city],
           ]} />
         </DetailCard>
 
-        <DetailCard icon={ShoppingCart} title="Propriétaire">
+        <DetailCard icon={ShoppingCart} title={t("admin.purchaseDetail.ownerTitle")}>
           <DefinitionList items={[
-            ["Nom", purchase.owner.name],
-            ["Téléphone", purchase.owner.phone],
-            ["Email", purchase.owner.email],
+            [t("admin.purchaseDetail.name"), purchase.owner.name],
+            [t("admin.purchaseDetail.phone"), purchase.owner.phone],
+            [t("admin.purchaseDetail.email"), purchase.owner.email],
           ]} />
         </DetailCard>
       </section>
 
       {purchase.note && (
-        <DetailCard icon={FileText} title="Message du client">
+        <DetailCard icon={FileText} title={t("admin.purchaseDetail.clientMessage")}>
           <p className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] px-4 py-3 text-sm leading-7 text-gray-600 dark:text-gray-300">
             {purchase.note}
           </p>

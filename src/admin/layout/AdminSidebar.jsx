@@ -13,21 +13,23 @@ import {
   X,
 } from "lucide-react";
 import { useAdminAuth } from "../context/AdminAuthContext";
+import { useLang } from "../../lib/i18n";
 
 const navigation = [
-  { label: "Dashboard", href: "/admin", icon: Gauge },
-  { label: "Cars", href: "/admin/cars", icon: Car },
-  { label: "Owners", href: "/admin/owners", icon: UserRoundCheck },
-  { label: "Bookings", href: "/admin/bookings", icon: BarChart3 },
-  { label: "Purchases", href: "/admin/purchases", icon: ShoppingCart },
-  { label: "Payments", href: "/admin/payments", icon: CreditCard },
-  { label: "Receipts", href: "/admin/receipts", icon: ReceiptText },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
+  { key: "admin.nav.dashboard", href: "/admin", icon: Gauge },
+  { key: "admin.nav.cars", href: "/admin/cars", icon: Car },
+  { key: "admin.nav.owners", href: "/admin/owners", icon: UserRoundCheck },
+  { key: "admin.nav.bookings", href: "/admin/bookings", icon: BarChart3 },
+  { key: "admin.nav.purchases", href: "/admin/purchases", icon: ShoppingCart },
+  { key: "admin.nav.payments", href: "/admin/payments", icon: CreditCard },
+  { key: "admin.nav.receipts", href: "/admin/receipts", icon: ReceiptText },
+  { key: "admin.nav.settings", href: "/admin/settings", icon: Settings },
 ];
 
 function SidebarContent({ onNavigate, showCloseButton = false }) {
   const { logout } = useAdminAuth();
   const navigate = useNavigate();
+  const { t } = useLang();
 
   const handleLogout = () => {
     logout();
@@ -52,7 +54,7 @@ function SidebarContent({ onNavigate, showCloseButton = false }) {
             type="button"
             className="rounded-2xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 transition hover:border-red-500/40 hover:text-gray-900 dark:hover:text-white"
             onClick={onNavigate}
-            aria-label="Fermer la sidebar admin"
+            aria-label={t("admin.close")}
           >
             <X className="h-5 w-5" />
           </button>
@@ -62,7 +64,7 @@ function SidebarContent({ onNavigate, showCloseButton = false }) {
       <nav className="mt-10 space-y-2" aria-label="Navigation admin">
         {navigation.map((item) => (
           <NavLink
-            key={item.label}
+            key={item.key}
             to={item.href}
             end={item.href === "/admin"}
             onClick={onNavigate}
@@ -75,7 +77,7 @@ function SidebarContent({ onNavigate, showCloseButton = false }) {
             }
           >
             <item.icon className="h-5 w-5" />
-            {item.label}
+            {t(item.key)}
           </NavLink>
         ))}
         <button
@@ -84,14 +86,14 @@ function SidebarContent({ onNavigate, showCloseButton = false }) {
           className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-gray-500 dark:text-gray-400 transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
         >
           <LogOut className="h-5 w-5" />
-          Logout
+          {t("admin.nav.logout")}
         </button>
       </nav>
 
       <div className="mt-auto rounded-3xl border border-red-500/20 bg-gradient-to-br from-red-600/15 to-orange-500/10 p-5">
-        <p className="text-sm font-semibold text-gray-900 dark:text-white">Plateforme automobile</p>
+        <p className="text-sm font-semibold text-gray-900 dark:text-white">{t("admin.sidebar.platform")}</p>
         <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-          Pilotage des locations, ventes, paiements et commissions.
+          {t("admin.sidebar.desc")}
         </p>
       </div>
     </div>

@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { AlertTriangle, CheckCircle2, X } from "lucide-react";
-import { paymentMethodLabels } from "../mock/adminPayments.mock";
+import { paymentMethodLabels } from "../lib/paymentOptions";
+import { useLang } from "../../lib/i18n";
 
-// Montants affichés en francs Djibouti
 const currencyFormatter = {
   format: (value) => `${new Intl.NumberFormat("fr-FR").format(value ?? 0)} FDJ`,
 };
 
 export default function CashValidationDialog({ payment, open, onClose, onConfirm }) {
   const [note, setNote] = useState("");
+  const { t } = useLang();
 
   if (!open || !payment) {
     return null;
@@ -28,11 +29,11 @@ export default function CashValidationDialog({ payment, open, onClose, onConfirm
               <AlertTriangle className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.25em] text-orange-700 dark:text-orange-200">Confirmation cash</p>
-              <h3 id="cash-validation-title" className="mt-1 text-2xl font-black text-gray-900 dark:text-white">Valider ce paiement ?</h3>
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-orange-700 dark:text-orange-200">{t("admin.cash.eyebrow")}</p>
+              <h3 id="cash-validation-title" className="mt-1 text-2xl font-black text-gray-900 dark:text-white">{t("admin.cash.title")}</h3>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="rounded-full border border-black/10 dark:border-white/10 p-2 text-gray-500 dark:text-gray-400 transition hover:border-red-500/40 hover:text-gray-900 dark:hover:text-white" aria-label="Fermer la confirmation">
+          <button type="button" onClick={onClose} className="rounded-full border border-black/10 dark:border-white/10 p-2 text-gray-500 dark:text-gray-400 transition hover:border-red-500/40 hover:text-gray-900 dark:hover:text-white" aria-label={t("admin.close")}>
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -48,24 +49,24 @@ export default function CashValidationDialog({ payment, open, onClose, onConfirm
               <p className="mt-1 font-black text-gray-900 dark:text-white">{payment.relatedId}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">Client</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">{t("admin.th.client")}</p>
               <p className="mt-1 font-black text-gray-900 dark:text-white">{payment.client}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">Montant</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">{t("admin.th.amount")}</p>
               <p className="mt-1 font-black text-gray-900 dark:text-white">{currencyFormatter.format(payment.amount)}</p>
             </div>
           </div>
           <p className="mt-4 rounded-2xl border border-orange-500/20 bg-orange-500/10 px-4 py-3 text-orange-700 dark:text-orange-100">
-            Méthode {paymentMethodLabels[payment.method]} · référence {payment.providerRef}
+            {t("admin.th.method")} {paymentMethodLabels[payment.method]} · {t("admin.th.ref")} {payment.providerRef}
           </p>
         </div>
 
         <label className="mt-5 block">
-          <span className="text-sm font-bold text-gray-600 dark:text-gray-300">Note optionnelle</span>
+          <span className="text-sm font-bold text-gray-600 dark:text-gray-300">{t("admin.cash.noteLabel")}</span>
           <textarea
             className="mt-2 min-h-28 w-full rounded-3xl border border-black/10 dark:border-white/10 bg-gray-100 dark:bg-black/40 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:border-orange-500/50"
-            placeholder="Ex: cash vérifié en caisse, reçu signé..."
+            placeholder={t("admin.cash.notePh")}
             value={note}
             onChange={(event) => setNote(event.target.value)}
           />
@@ -73,10 +74,10 @@ export default function CashValidationDialog({ payment, open, onClose, onConfirm
 
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} className="rounded-2xl border border-black/10 dark:border-white/10 px-5 py-3 text-sm font-bold text-gray-600 dark:text-gray-300 transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white">
-            Annuler
+            {t("admin.cash.cancel")}
           </button>
           <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-600/25 transition hover:scale-[1.01]">
-            <CheckCircle2 className="h-4 w-4" /> Confirmer la validation
+            <CheckCircle2 className="h-4 w-4" /> {t("admin.cash.confirm")}
           </button>
         </div>
       </form>

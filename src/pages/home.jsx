@@ -25,6 +25,7 @@ import HeroCarousel from "../components/herocarousel";
 import Footer from "../components/footer";
 import { fetchPublicCars } from "../lib/publicCars";
 import { useLang } from "../lib/i18n";
+import useScrollReveal from "../lib/useScrollReveal";
 
 // Slides affichées si l'API est éteinte ou si aucune voiture n'a de photo
 const defaultHeroSlides = [
@@ -55,6 +56,7 @@ export default function Home() {
   const [showReservationModal, setShowReservationModal] = useState(false);
   const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
   const [featuredCars, setFeaturedCars] = useState([]);
+  const scrollRef = useScrollReveal();
 
   // Charge les vraies voitures : elles alimentent le carrousel ET la Collection Premium
   useEffect(() => {
@@ -88,7 +90,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
+    <div ref={scrollRef} className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
 
       {/* Hero Section : carrousel plein écran avec le texte par-dessus */}
       <HeroCarousel slides={heroSlides}>
@@ -100,9 +102,9 @@ export default function Home() {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold mb-3 sm:mb-6 leading-tight text-white">
+            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold mb-3 sm:mb-6 leading-tight text-white hero-title-glow">
               {t("hero.title1")}
-              <span className="block bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent drop-shadow-none">
                 {t("hero.title2")}
               </span>
             </h1>
@@ -114,13 +116,13 @@ export default function Home() {
             <div className="flex flex-wrap gap-3 sm:gap-4">
               <Link
                 to="/cars"
-                className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full font-semibold hover:shadow-lg hover:shadow-red-500/50 transition text-sm sm:text-base"
+                className="btn-glow px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full font-semibold text-sm sm:text-base"
               >
                 {t("hero.viewCollection")}
               </Link>
               <Link
                 to="/contact"
-                className="px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-full font-semibold hover:bg-white/20 transition text-sm sm:text-base"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-full font-semibold hover:bg-white/20 hover:scale-105 transition-all duration-300 text-sm sm:text-base"
               >
                 {t("hero.appointment")}
               </Link>
@@ -130,7 +132,7 @@ export default function Home() {
       </HeroCarousel>
 
       {/* Search Bar */}
-      <section className="py-6 sm:py-8 px-4 sm:px-6">
+      <section className="py-6 sm:py-8 px-4 sm:px-6 animate-on-scroll">
         <div className="max-w-6xl mx-auto">
           <div className="bg-gray-100 dark:bg-gradient-to-r dark:from-gray-900 dark:to-gray-800 rounded-2xl p-4 sm:p-8 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
@@ -180,7 +182,7 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-10 sm:py-16 px-4 sm:px-6">
+      <section className="py-10 sm:py-16 px-4 sm:px-6 animate-on-scroll">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-3 gap-3 sm:gap-6">
             {stats.map((stat, idx) => (
@@ -198,7 +200,7 @@ export default function Home() {
       </section>
 
       {/* Featured Cars */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 animate-on-scroll">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-12">
             <div>
@@ -234,9 +236,9 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {featuredCars.map((car) => (
-              <div key={car.id} className="group relative">
-                <div className="bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-red-500/50 transition-colors duration-300">
-                  <div className="relative h-44 sm:h-48 overflow-hidden">
+              <div key={car.id} className="group relative flex">
+                <div className="car-card flex flex-col w-full bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                  <div className="relative h-44 sm:h-48 overflow-hidden shrink-0">
                     <img
                       src={car.image}
                       alt={car.name}
@@ -249,7 +251,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="p-4 sm:p-6">
+                  <div className="p-4 sm:p-6 flex flex-col flex-1">
                     <div className="text-xs text-red-500 font-semibold mb-1 sm:mb-2">
                       {car.category}
                     </div>
@@ -270,8 +272,8 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center">
-                      <div className="text-lg sm:text-2xl font-bold">
+                    <div className="flex justify-between items-end mt-auto">
+                      <div className="text-lg sm:text-xl font-bold leading-tight">
                         {car.price != null
                           ? `${car.price.toLocaleString()} FDJ`
                           : car.pricePerDay != null
@@ -283,7 +285,7 @@ export default function Home() {
                           setSelectedCar(car);
                           setShowModal(true);
                         }}
-                        className="px-3 sm:px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full text-xs sm:text-sm font-semibold hover:shadow-lg hover:shadow-red-500/50 transition"
+                        className="btn-glow shrink-0 px-3 sm:px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full text-xs sm:text-sm font-semibold"
                       >
                         {t("card.details")}
                       </button>
@@ -307,7 +309,7 @@ export default function Home() {
       </section>
 
       {/* Services Section */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gray-50/50 dark:bg-gradient-to-b dark:from-transparent dark:to-gray-900/50 transition-colors duration-300">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gray-50/50 dark:bg-gradient-to-b dark:from-transparent dark:to-gray-900/50 transition-colors duration-300 animate-on-scroll">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
             <h2 className="text-2xl sm:text-4xl font-bold mb-4">{t("services.title")}</h2>
@@ -337,7 +339,7 @@ export default function Home() {
             ].map((service, idx) => (
               <div
                 key={idx}
-                className={`bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 hover:border-red-500/50 transition-colors duration-300 ${service.extra || ""}`}
+                className={`car-card bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 ${service.extra || ""}`}
               >
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-red-600/10 dark:bg-red-600/20 rounded-xl flex items-center justify-center mb-5 sm:mb-6">
                   {service.icon}
@@ -353,7 +355,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 animate-on-scroll">
         <div className="max-w-5xl mx-auto">
           <div className="relative bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl sm:rounded-3xl p-6 sm:p-12 overflow-hidden">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxIDAgNiAyLjY5IDYgNnMtMi42OSA2LTYgNi02LTIuNjktNi02IDIuNjktNiA2LTZ6TTI0IDI0YzMuMzEgMCA2IDIuNjkgNiA2cy0yLjY5IDYtNiA2LTYtMi42OS02LTYgMi42OS02IDYtNnoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjA1Ii8+PC9nPjwvc3ZnPg==')] opacity-30"></div>

@@ -3,20 +3,13 @@ import { Link } from "react-router-dom";
 import { Eye, Plus, Search, UserRoundCheck, UsersRound, X } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useAdminAuth } from "../context/AdminAuthContext";
+import { useLang } from "../../lib/i18n";
 
-// Montants affichés en francs Djibouti
 const currencyFormatter = {
   format: (value) => `${new Intl.NumberFormat("fr-FR").format(value ?? 0)} FDJ`,
 };
 
 const numberFormatter = new Intl.NumberFormat("fr-FR");
-
-const roleLabels = {
-  OWNER: "Propriétaire",
-  SUPERADMIN: "Super Admin",
-  MANAGER: "Manager",
-  CLIENT: "Client",
-};
 
 const initialFilters = {
   search: "",
@@ -36,6 +29,7 @@ const inputClass = "w-full rounded-2xl border border-black/10 dark:border-white/
 
 export default function OwnersPage() {
   const { token } = useAdminAuth();
+  const { t } = useLang();
   const [filters, setFilters] = useState(initialFilters);
   const [owners, setOwners] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,19 +98,19 @@ export default function OwnersPage() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-700 dark:text-red-200">
-              Gestion propriétaires
+              {t("admin.owners.badge")}
             </p>
-            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">Propriétaires & partenaires</h2>
+            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">{t("admin.owners.title")}</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-500 dark:text-gray-400">
-              Profils propriétaires, parcs voitures, réservations et revenus — calculés en direct depuis la base.
+              {t("admin.owners.subtitle")}
             </p>
           </div>
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
             <div className="inline-flex items-center gap-3 rounded-3xl border border-orange-500/20 bg-orange-500/10 px-5 py-4 text-orange-700 dark:text-orange-100">
               <UsersRound className="h-6 w-6" />
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-700 dark:text-orange-200">Total</p>
-                <p className="text-2xl font-black text-gray-900 dark:text-white">{owners.length} propriétaires</p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-700 dark:text-orange-200">{t("admin.owners.total")}</p>
+                <p className="text-2xl font-black text-gray-900 dark:text-white">{owners.length} {t("admin.owners.owners")}</p>
               </div>
             </div>
             <button
@@ -124,22 +118,22 @@ export default function OwnersPage() {
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-600/25 transition hover:scale-[1.02]"
             >
               {showForm ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-              {showForm ? "Fermer" : "Nouveau propriétaire"}
+              {showForm ? t("admin.close") : t("admin.owners.newOwner")}
             </button>
           </div>
         </div>
 
         <div className="mt-7 grid gap-4 md:grid-cols-3">
           <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Voitures gérées</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.owners.carsManaged")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{numberFormatter.format(totals.cars)}</p>
           </div>
           <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Revenus reversés</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.owners.revenuePaid")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(totals.revenue)}</p>
           </div>
           <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Commission plateforme</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.owners.platformComm")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(totals.commission)}</p>
           </div>
         </div>
@@ -147,22 +141,22 @@ export default function OwnersPage() {
 
       {showForm && (
         <section className="rounded-[2rem] border border-orange-500/20 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Créer un compte propriétaire</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t("admin.owners.createTitle")}</h3>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Le propriétaire pourra se connecter avec cet email et ce mot de passe. Ses voitures lui seront rattachées.
+            {t("admin.owners.createSub")}
           </p>
           <form onSubmit={handleCreateOwner} className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <input className={inputClass} placeholder="Nom complet / société *" value={ownerForm.fullName} onChange={(event) => setOwnerForm({ ...ownerForm, fullName: event.target.value })} required />
-            <input className={inputClass} type="email" placeholder="Email *" value={ownerForm.email} onChange={(event) => setOwnerForm({ ...ownerForm, email: event.target.value })} required />
-            <input className={inputClass} type="tel" placeholder="Téléphone" value={ownerForm.phone} onChange={(event) => setOwnerForm({ ...ownerForm, phone: event.target.value })} />
-            <input className={inputClass} placeholder="Ville" value={ownerForm.city} onChange={(event) => setOwnerForm({ ...ownerForm, city: event.target.value })} />
-            <input className={inputClass} type="password" placeholder="Mot de passe * (min 6 caractères)" value={ownerForm.password} onChange={(event) => setOwnerForm({ ...ownerForm, password: event.target.value })} required />
+            <input className={inputClass} placeholder={`${t("admin.owners.fullName")} *`} value={ownerForm.fullName} onChange={(event) => setOwnerForm({ ...ownerForm, fullName: event.target.value })} required />
+            <input className={inputClass} type="email" placeholder={`${t("admin.owners.email")} *`} value={ownerForm.email} onChange={(event) => setOwnerForm({ ...ownerForm, email: event.target.value })} required />
+            <input className={inputClass} type="tel" placeholder={t("admin.owners.phone")} value={ownerForm.phone} onChange={(event) => setOwnerForm({ ...ownerForm, phone: event.target.value })} />
+            <input className={inputClass} placeholder={t("admin.owners.city")} value={ownerForm.city} onChange={(event) => setOwnerForm({ ...ownerForm, city: event.target.value })} />
+            <input className={inputClass} type="password" placeholder={`${t("admin.owners.password")} *`} value={ownerForm.password} onChange={(event) => setOwnerForm({ ...ownerForm, password: event.target.value })} required />
             <button
               type="submit"
               disabled={saving}
               className="rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-600/25 disabled:opacity-60"
             >
-              {saving ? "Création..." : "Créer le propriétaire"}
+              {saving ? t("admin.owners.creating") : t("admin.owners.create")}
             </button>
           </form>
           {formError && (
@@ -179,19 +173,19 @@ export default function OwnersPage() {
             <Search className="h-4 w-4" />
             <input
               className="w-full bg-transparent text-sm text-gray-900 dark:text-white outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400"
-              placeholder="Recherche nom, téléphone, email, ville..."
+              placeholder={t("admin.owners.searchPh")}
               value={filters.search}
               onChange={(event) => handleFilterChange("search", event.target.value)}
             />
           </label>
           <select className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white" value={filters.city} onChange={(event) => handleFilterChange("city", event.target.value)}>
-            <option value="all">Toutes villes</option>
+            <option value="all">{t("admin.owners.allCities")}</option>
             {uniqueValues("city").map((value) => <option key={value} value={value}>{value}</option>)}
           </select>
           <select className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white" value={filters.commission} onChange={(event) => handleFilterChange("commission", event.target.value)}>
-            <option value="all">Commissions: toutes</option>
-            <option value="due">Avec commission</option>
-            <option value="clear">Sans commission</option>
+            <option value="all">{t("admin.owners.commAll")}</option>
+            <option value="due">{t("admin.owners.commDue")}</option>
+            <option value="clear">{t("admin.owners.commClear")}</option>
           </select>
         </div>
       </section>
@@ -199,11 +193,11 @@ export default function OwnersPage() {
       <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-4 shadow-2xl shadow-black/25 lg:p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Propriétaires ({filteredOwners.length})</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Données en direct depuis ta base Neon.</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t("admin.owners.count")} ({filteredOwners.length})</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.liveData")}</p>
           </div>
           <button className="rounded-2xl border border-black/10 dark:border-white/10 px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white" onClick={() => setFilters(initialFilters)}>
-            Reset filtres
+            {t("admin.resetFilters")}
           </button>
         </div>
 
@@ -214,23 +208,23 @@ export default function OwnersPage() {
         )}
 
         {loading ? (
-          <p className="py-12 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">Chargement des propriétaires...</p>
+          <p className="py-12 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">{t("admin.owners.loading")}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1180px] text-left text-sm">
               <thead className="text-gray-500 dark:text-gray-400">
                 <tr className="border-b border-black/10 dark:border-white/10">
-                  <th className="py-4 font-semibold">Nom</th>
-                  <th className="py-4 font-semibold">Téléphone</th>
-                  <th className="py-4 font-semibold">Email</th>
-                  <th className="py-4 font-semibold">Ville</th>
-                  <th className="py-4 font-semibold">Voitures location</th>
-                  <th className="py-4 font-semibold">Voitures vente</th>
-                  <th className="py-4 font-semibold">Réservations</th>
-                  <th className="py-4 font-semibold">Revenus</th>
-                  <th className="py-4 font-semibold">Commission</th>
-                  <th className="py-4 font-semibold">Rôle</th>
-                  <th className="py-4 text-right font-semibold">Actions</th>
+                  <th className="py-4 font-semibold">{t("admin.owners.fullName")}</th>
+                  <th className="py-4 font-semibold">{t("admin.owners.phone")}</th>
+                  <th className="py-4 font-semibold">{t("admin.owners.email")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.city")}</th>
+                  <th className="py-4 font-semibold">{t("admin.owners.thRentalCars")}</th>
+                  <th className="py-4 font-semibold">{t("admin.owners.thSaleCars")}</th>
+                  <th className="py-4 font-semibold">{t("admin.owners.thResa")}</th>
+                  <th className="py-4 font-semibold">{t("admin.owners.thRevenue")}</th>
+                  <th className="py-4 font-semibold">{t("admin.owners.thComm")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.role")}</th>
+                  <th className="py-4 text-right font-semibold">{t("admin.th.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -238,7 +232,7 @@ export default function OwnersPage() {
                   <tr key={owner.id} className="border-b border-black/5 dark:border-white/5 text-gray-600 dark:text-gray-300 last:border-0">
                     <td className="py-4">
                       <p className="font-bold text-gray-900 dark:text-white">{owner.name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{owner.metrics.totalCars} voiture{owner.metrics.totalCars > 1 ? "s" : ""}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{owner.metrics.totalCars} {owner.metrics.totalCars > 1 ? t("admin.owners.cars") : t("admin.owners.car")}</p>
                     </td>
                     <td className="py-4">{owner.phone || "—"}</td>
                     <td className="py-4">{owner.email}</td>
@@ -250,12 +244,12 @@ export default function OwnersPage() {
                     <td className="py-4 font-semibold text-orange-700 dark:text-orange-200">{currencyFormatter.format(owner.metrics.commission)}</td>
                     <td className="py-4">
                       <span className="inline-flex rounded-full border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] px-3 py-1 text-xs font-bold">
-                        {roleLabels[owner.role] ?? owner.role}
+                        {t(`admin.role.${owner.role}`) !== `admin.role.${owner.role}` ? t(`admin.role.${owner.role}`) : owner.role}
                       </span>
                     </td>
                     <td className="py-4">
                       <div className="flex justify-end gap-2">
-                        <Link to={`/admin/owners/${owner.id}`} className="rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white" title="Voir">
+                        <Link to={`/admin/owners/${owner.id}`} className="rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white" title={t("admin.details")}>
                           <Eye className="h-4 w-4" />
                         </Link>
                       </div>
@@ -270,7 +264,7 @@ export default function OwnersPage() {
         {!loading && filteredOwners.length === 0 && (
           <div className="py-12 text-center text-gray-500 dark:text-gray-400">
             <UserRoundCheck className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-600" />
-            <p className="mt-3 font-semibold">Aucun propriétaire ne correspond aux filtres.</p>
+            <p className="mt-3 font-semibold">{t("admin.owners.empty")}</p>
           </div>
         )}
       </section>

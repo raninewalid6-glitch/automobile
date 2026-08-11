@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Filter, Plus, ReceiptText, Search, X } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useAdminAuth } from "../context/AdminAuthContext";
+import { useLang } from "../../lib/i18n";
 
 // Montants affichés en francs Djibouti
 const currencyFormatter = {
@@ -20,6 +21,7 @@ const inputClass = "w-full rounded-2xl border border-black/10 dark:border-white/
 
 export default function ReceiptsPage() {
   const { token } = useAdminAuth();
+  const { t } = useLang();
   const [search, setSearch] = useState("");
   const [receipts, setReceipts] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -99,11 +101,11 @@ export default function ReceiptsPage() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-700 dark:text-red-200">
-              Gestion reçus
+              {t("admin.receipts.badge")}
             </p>
-            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">Reçus</h2>
+            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">{t("admin.receipts.title")}</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-500 dark:text-gray-400">
-              Génère un reçu numéroté pour chaque réservation ou vente (un seul reçu par opération).
+              {t("admin.receipts.subtitle")}
             </p>
           </div>
           <button
@@ -111,17 +113,17 @@ export default function ReceiptsPage() {
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-600/25 transition hover:scale-[1.02]"
           >
             {showForm ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            {showForm ? "Fermer" : "Générer un reçu"}
+            {showForm ? t("admin.close") : t("admin.receipts.newReceipt")}
           </button>
         </div>
 
         <div className="mt-7 grid gap-4 md:grid-cols-2">
           <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Reçus émis</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.receipts.issued")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{filteredReceipts.length}</p>
           </div>
           <div className="rounded-3xl border border-orange-500/20 bg-orange-500/10 p-5">
-            <p className="text-sm text-orange-700 dark:text-orange-200">Montant total</p>
+            <p className="text-sm text-orange-700 dark:text-orange-200">{t("admin.receipts.totalAmount")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(totalAmount)}</p>
           </div>
         </div>
@@ -129,14 +131,14 @@ export default function ReceiptsPage() {
 
       {showForm && (
         <section className="rounded-[2rem] border border-orange-500/20 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Générer un reçu</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t("admin.receipts.formTitle")}</h3>
           <form onSubmit={handleCreateReceipt} className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <select className={inputClass} value={form.targetType} onChange={(event) => setForm({ targetType: event.target.value, targetId: "" })}>
-              <option value="booking">Réservation (location)</option>
-              <option value="purchase">Vente (achat)</option>
+              <option value="booking">{t("admin.payments.targetBooking")}</option>
+              <option value="purchase">{t("admin.payments.targetPurchase")}</option>
             </select>
             <select className={`${inputClass}`} value={form.targetId} onChange={(event) => setForm({ ...form, targetId: event.target.value })} required>
-              <option value="">— Choisir {form.targetType === "booking" ? "une réservation" : "une vente"} —</option>
+              <option value="">{form.targetType === "booking" ? t("admin.payments.chooseBooking") : t("admin.payments.choosePurchase")}</option>
               {targetOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
             </select>
             <button
@@ -144,7 +146,7 @@ export default function ReceiptsPage() {
               disabled={saving}
               className="rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-600/25 disabled:opacity-60"
             >
-              {saving ? "Génération..." : "Générer le reçu"}
+              {saving ? t("admin.receipts.generating") : t("admin.receipts.generate")}
             </button>
           </form>
           {formError && (
@@ -162,7 +164,7 @@ export default function ReceiptsPage() {
             <Search className="h-4 w-4" />
             <input
               className="w-full bg-transparent text-sm text-gray-900 dark:text-white outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400"
-              placeholder="Recherche n° de reçu, client, voiture..."
+              placeholder={t("admin.receipts.searchPh")}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -176,30 +178,30 @@ export default function ReceiptsPage() {
         )}
 
         {loading ? (
-          <p className="py-12 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">Chargement des reçus...</p>
+          <p className="py-12 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">{t("admin.receipts.loading")}</p>
         ) : filteredReceipts.length === 0 ? (
           <div className="py-12 text-center text-gray-500 dark:text-gray-400">
             <ReceiptText className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-600" />
-            <p className="mt-3 font-semibold">Aucun reçu pour le moment.</p>
+            <p className="mt-3 font-semibold">{t("admin.receipts.empty")}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px] text-left text-sm">
               <thead className="text-gray-500 dark:text-gray-400">
                 <tr className="border-b border-black/10 dark:border-white/10">
-                  <th className="py-4 font-semibold">N° reçu</th>
+                  <th className="py-4 font-semibold">{t("admin.receipts.receiptNo")}</th>
                   <th className="py-4 font-semibold">Type</th>
-                  <th className="py-4 font-semibold">Client</th>
-                  <th className="py-4 font-semibold">Voiture</th>
-                  <th className="py-4 font-semibold">Montant</th>
-                  <th className="py-4 font-semibold">Émis le</th>
+                  <th className="py-4 font-semibold">{t("admin.th.client")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.vehicle")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.amount")}</th>
+                  <th className="py-4 font-semibold">{t("admin.receipts.issuedAt")}</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredReceipts.map((receipt) => (
                   <tr key={receipt.id} className="border-b border-black/5 dark:border-white/5 text-gray-600 dark:text-gray-300 last:border-0">
                     <td className="py-4 font-black text-gray-900 dark:text-white">{receipt.receiptNumber}</td>
-                    <td className="py-4">{receipt.target.type === "booking" ? "Location" : "Vente"}</td>
+                    <td className="py-4">{receipt.target.type === "booking" ? t("admin.payments.rental") : t("admin.payments.purchase")}</td>
                     <td className="py-4 font-bold text-gray-900 dark:text-white">{receipt.target.client}</td>
                     <td className="py-4">{receipt.target.car}</td>
                     <td className="py-4 font-black text-gray-900 dark:text-white">{currencyFormatter.format(receipt.target.amount ?? 0)}</td>

@@ -3,6 +3,7 @@ import { Banknote, Filter, Plus, RotateCcw, Search, WalletCards, X } from "lucid
 import { apiFetch } from "../../lib/api";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import { paymentMethodLabels, paymentStatusLabels, paymentStatusStyles } from "../lib/paymentOptions";
+import { useLang } from "../../lib/i18n";
 
 // Montants affichés en francs Djibouti
 const currencyFormatter = {
@@ -33,6 +34,7 @@ function StatusBadge({ status }) {
 
 export default function PaymentsPage() {
   const { token } = useAdminAuth();
+  const { t } = useLang();
   const [filters, setFilters] = useState(initialFilters);
   const [payments, setPayments] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -90,7 +92,7 @@ export default function PaymentsPage() {
   const handleCreatePayment = async (event) => {
     event.preventDefault();
     if (!form.targetId) {
-      setFormError("Choisis une réservation ou une vente");
+      setFormError(t("admin.payments.chooseError"));
       return;
     }
     setSaving(true);
@@ -110,8 +112,8 @@ export default function PaymentsPage() {
       setShowForm(false);
       setSuccessMessage(
         data.bookingConfirmed
-          ? "Paiement enregistré — la réservation est maintenant entièrement payée et confirmée ✅"
-          : "Paiement enregistré ✅"
+          ? t("admin.payments.successFull") + " ✅"
+          : t("admin.payments.success") + " ✅"
       );
       loadAll();
     } catch (err) {
@@ -122,7 +124,7 @@ export default function PaymentsPage() {
   };
 
   const refundPayment = async (payment) => {
-    if (!window.confirm(`Marquer ce paiement de ${currencyFormatter.format(payment.amount)} comme remboursé ?`)) return;
+    if (!window.confirm(t("admin.payments.refundConfirm"))) return;
     try {
       const data = await apiFetch(`/admin/payments/${payment.id}/status`, { method: "PUT", token, body: { status: "REFUNDED" } });
       setPayments((current) => current.map((item) => (item.id === payment.id ? data.payment : item)));
@@ -147,12 +149,11 @@ export default function PaymentsPage() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-700 dark:text-red-200">
-              Gestion paiements
+              {t("admin.payments.badge")}
             </p>
-            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">Paiements</h2>
+            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">{t("admin.payments.title")}</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-500 dark:text-gray-400">
-              Enregistre les paiements reçus (Waafi, D-Money, MasterCard, espèces) sur les réservations et les ventes.
-              Une réservation entièrement payée est confirmée automatiquement.
+              {t("admin.payments.subtitle")}
             </p>
           </div>
           <button
@@ -160,21 +161,21 @@ export default function PaymentsPage() {
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-600/25 transition hover:scale-[1.02]"
           >
             {showForm ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            {showForm ? "Fermer" : "Enregistrer un paiement"}
+            {showForm ? t("admin.close") : t("admin.payments.newPayment")}
           </button>
         </div>
 
         <div className="mt-7 grid gap-4 md:grid-cols-3">
           <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-5">
-            <p className="text-sm text-emerald-700 dark:text-emerald-200">Total encaissé (filtré)</p>
+            <p className="text-sm text-emerald-700 dark:text-emerald-200">{t("admin.payments.totalCollected")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(totals.paid)}</p>
           </div>
           <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Paiements (filtré)</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.payments.totalPayments")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{filteredPayments.length}</p>
           </div>
           <div className="rounded-3xl border border-blue-500/20 bg-blue-500/10 p-5">
-            <p className="text-sm text-blue-700 dark:text-blue-200">Remboursé (filtré)</p>
+            <p className="text-sm text-blue-700 dark:text-blue-200">{t("admin.payments.totalRefunded")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(totals.refunded)}</p>
           </div>
         </div>
@@ -188,31 +189,31 @@ export default function PaymentsPage() {
 
       {showForm && (
         <section className="rounded-[2rem] border border-orange-500/20 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Enregistrer un paiement reçu</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t("admin.payments.formTitle")}</h3>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Laisse le montant vide pour encaisser automatiquement tout ce qui reste dû.
+            {t("admin.payments.formSub")}
           </p>
           <form onSubmit={handleCreatePayment} className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <select className={inputClass} value={form.targetType} onChange={(event) => setForm({ ...form, targetType: event.target.value, targetId: "" })}>
-              <option value="booking">Réservation (location)</option>
-              <option value="purchase">Vente (achat)</option>
+              <option value="booking">{t("admin.payments.targetBooking")}</option>
+              <option value="purchase">{t("admin.payments.targetPurchase")}</option>
             </select>
             <select className={`${inputClass} xl:col-span-2`} value={form.targetId} onChange={(event) => setForm({ ...form, targetId: event.target.value })} required>
-              <option value="">— Choisir {form.targetType === "booking" ? "une réservation" : "une vente"} —</option>
+              <option value="">{form.targetType === "booking" ? t("admin.payments.chooseBooking") : t("admin.payments.choosePurchase")}</option>
               {targetOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
             </select>
-            <input className={inputClass} type="number" min="1" placeholder="Montant (vide = reste dû)" value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} />
+            <input className={inputClass} type="number" min="1" placeholder={t("admin.payments.amountPh")} value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} />
             <select className={inputClass} value={form.method} onChange={(event) => setForm({ ...form, method: event.target.value })}>
               {Object.entries(paymentMethodLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
-            <input className={inputClass} placeholder="Référence (ex: WF-2026-0042)" value={form.providerRef} onChange={(event) => setForm({ ...form, providerRef: event.target.value })} />
-            <input className={`${inputClass} xl:col-span-2`} placeholder="Note (optionnel)" value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} />
+            <input className={inputClass} placeholder={t("admin.payments.refPh")} value={form.providerRef} onChange={(event) => setForm({ ...form, providerRef: event.target.value })} />
+            <input className={`${inputClass} xl:col-span-2`} placeholder={t("admin.payments.notePh")} value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} />
             <button
               type="submit"
               disabled={saving}
               className="rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-600/25 disabled:opacity-60"
             >
-              {saving ? "Enregistrement..." : "Enregistrer le paiement"}
+              {saving ? t("admin.payments.saving") : t("admin.payments.save")}
             </button>
           </form>
           {formError && (
@@ -226,24 +227,24 @@ export default function PaymentsPage() {
       <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-5 shadow-2xl shadow-black/25">
         <div className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400">
           <Filter className="h-4 w-4" />
-          Filtres paiements
+          {t("admin.payments.filterTitle")}
         </div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <label className="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-gray-500 dark:text-gray-400 xl:col-span-2">
             <Search className="h-4 w-4" />
             <input
               className="w-full bg-transparent text-sm text-gray-900 dark:text-white outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400"
-              placeholder="Recherche client, voiture, référence..."
+              placeholder={t("admin.payments.searchPh")}
               value={filters.search}
               onChange={(event) => handleFilterChange("search", event.target.value)}
             />
           </label>
           <select className={inputClass} value={filters.method} onChange={(event) => handleFilterChange("method", event.target.value)}>
-            <option value="all">Toutes méthodes</option>
+            <option value="all">{t("admin.payments.allMethods")}</option>
             {Object.entries(paymentMethodLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
           <select className={inputClass} value={filters.status} onChange={(event) => handleFilterChange("status", event.target.value)}>
-            <option value="all">Tous statuts</option>
+            <option value="all">{t("admin.payments.allStatuses")}</option>
             {Object.entries(paymentStatusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
         </div>
@@ -257,25 +258,25 @@ export default function PaymentsPage() {
         )}
 
         {loading ? (
-          <p className="py-12 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">Chargement des paiements...</p>
+          <p className="py-12 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">{t("admin.payments.loading")}</p>
         ) : filteredPayments.length === 0 ? (
           <div className="py-12 text-center text-gray-500 dark:text-gray-400">
             <WalletCards className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-600" />
-            <p className="mt-3 font-semibold">Aucun paiement pour le moment.</p>
+            <p className="mt-3 font-semibold">{t("admin.payments.empty")}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1080px] text-left text-sm">
               <thead className="text-gray-500 dark:text-gray-400">
                 <tr className="border-b border-black/10 dark:border-white/10">
-                  <th className="py-4 font-semibold">Référence</th>
-                  <th className="py-4 font-semibold">Client</th>
-                  <th className="py-4 font-semibold">Opération</th>
-                  <th className="py-4 font-semibold">Méthode</th>
-                  <th className="py-4 font-semibold">Montant</th>
-                  <th className="py-4 font-semibold">Date</th>
-                  <th className="py-4 font-semibold">Statut</th>
-                  <th className="py-4 text-right font-semibold">Actions</th>
+                  <th className="py-4 font-semibold">{t("admin.th.ref")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.client")}</th>
+                  <th className="py-4 font-semibold">{t("admin.payments.operation")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.method")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.amount")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.date")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.status")}</th>
+                  <th className="py-4 text-right font-semibold">{t("admin.th.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -287,7 +288,7 @@ export default function PaymentsPage() {
                     </td>
                     <td className="py-4 font-bold text-gray-900 dark:text-white">{payment.client.name}</td>
                     <td className="py-4">
-                      <p className="font-semibold text-gray-900 dark:text-white">{payment.target.type === "booking" ? "Location" : "Achat"}</p>
+                      <p className="font-semibold text-gray-900 dark:text-white">{payment.target.type === "booking" ? t("admin.payments.rental") : t("admin.payments.purchase")}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{payment.target.car}</p>
                     </td>
                     <td className="py-4">
@@ -304,9 +305,8 @@ export default function PaymentsPage() {
                         <button
                           className="inline-flex items-center gap-2 rounded-xl border border-blue-500/30 px-3 py-2 text-xs font-bold text-blue-700 dark:text-blue-300 hover:bg-blue-500/10"
                           onClick={() => refundPayment(payment)}
-                          title="Marquer remboursé"
                         >
-                          <RotateCcw className="h-4 w-4" /> Rembourser
+                          <RotateCcw className="h-4 w-4" /> {t("admin.payments.refund")}
                         </button>
                       )}
                     </td>

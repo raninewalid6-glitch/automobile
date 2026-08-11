@@ -2,9 +2,11 @@ import React from "react";
 import { Award, Shield, Star } from "lucide-react";
 import Footer from "../components/footer";
 import { useLang } from "../lib/i18n";
+import useScrollReveal from "../lib/useScrollReveal";
 
 export default function About() {
   const { t } = useLang();
+  const scrollRef = useScrollReveal();
 
   const stats = [
     { number: "98%", label: t("stats.satisfied"), icon: Award },
@@ -13,8 +15,8 @@ export default function About() {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
-      <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6">
+    <div ref={scrollRef} className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
+      <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6 animate-on-scroll">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
             {t("about.title")} <span className="text-red-500">Djib Drive</span>

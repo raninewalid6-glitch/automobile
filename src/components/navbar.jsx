@@ -42,28 +42,28 @@ function Navbar({ setShowLoginModal }) {
           </Link>
 
           {/* Nav links */}
-          <div className="hidden lg:flex items-center space-x-10">
+          <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             {navLinks.map((link) => (
-              <Link key={link.to} to={link.to} className={navLinkClass(link.to)}>
+              <Link key={link.to} to={link.to} className={`text-sm ${navLinkClass(link.to)}`}>
                 {link.label}
               </Link>
             ))}
             {isAuthenticated && (
-              <Link to="/mes-reservations" className={navLinkClass("/mes-reservations")}>
+              <Link to="/mes-reservations" className={`text-sm ${navLinkClass("/mes-reservations")}`}>
                 {t("nav.myReservations")}
               </Link>
             )}
           </div>
 
           {/* Langue + Auth + ThemeToggle */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <label className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black/50 px-2 py-2 text-gray-700 dark:text-gray-300 transition-colors duration-300">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <label className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black/50 px-2 py-1.5 text-gray-700 dark:text-gray-300 transition-colors duration-300">
               <Globe className="w-4 h-4 shrink-0 text-red-500" />
               <select
                 value={lang}
                 onChange={(event) => setLang(event.target.value)}
                 aria-label="Choisir la langue"
-                className="bg-transparent text-sm font-semibold outline-none cursor-pointer dark:[&>option]:bg-black"
+                className="bg-transparent text-xs font-semibold outline-none cursor-pointer dark:[&>option]:bg-black"
               >
                 {languages.map((language) => (
                   <option key={language.code} value={language.code}>{language.label}</option>
@@ -72,13 +72,16 @@ function Navbar({ setShowLoginModal }) {
             </label>
             <ThemeToggle />
             {isAuthenticated ? (
-              <div className="hidden lg:flex items-center space-x-3">
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {t("nav.hello")}, {user?.prenom}
-                </span>
+              <div className="hidden lg:flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800">
+                  <User className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300 max-w-[80px] truncate">
+                    {user?.prenom}
+                  </span>
+                </div>
                 <button
                   onClick={logout}
-                  className="px-4 py-2 bg-red-600/20 border border-red-600/30 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-600/30 transition"
+                  className="px-3 py-1.5 border border-red-500/30 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-600/10 transition"
                 >
                   {t("nav.logout")}
                 </button>
@@ -86,9 +89,9 @@ function Navbar({ setShowLoginModal }) {
             ) : (
               <button
                 onClick={() => setShowLoginModal(true)}
-                className="hidden lg:flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-red-500/50 transition"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg text-xs font-semibold hover:shadow-lg hover:shadow-red-500/50 transition"
               >
-                <User className="w-4 h-4" />
+                <User className="w-3.5 h-3.5" />
                 <span>{t("nav.login")}</span>
               </button>
             )}

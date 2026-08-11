@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { CheckCircle2, Eye, Pencil, Plus, Search, ShieldOff, Trash2 } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useAdminAuth } from "../context/AdminAuthContext";
+import { useLang } from "../../lib/i18n";
 import {
   carStatusLabels,
   carStatusStyles,
@@ -11,7 +12,6 @@ import {
   categoryLabels,
 } from "../lib/carOptions";
 
-// Montants affichés en francs Djibouti
 const currencyFormatter = {
   format: (value) => `${new Intl.NumberFormat("fr-FR").format(value ?? 0)} FDJ`,
 };
@@ -24,13 +24,6 @@ function CarStatusBadge({ status }) {
       {carStatusLabels[status] ?? status}
     </span>
   );
-}
-
-function getOfferType(car) {
-  if (car.isForRent && car.isForSale) return "Location + Vente";
-  if (car.isForRent) return "Location";
-  if (car.isForSale) return "Vente";
-  return "Non publié";
 }
 
 const initialFilters = {
@@ -47,6 +40,7 @@ const initialFilters = {
 
 export default function CarsPage() {
   const { token } = useAdminAuth();
+  const { t } = useLang();
   const [filters, setFilters] = useState(initialFilters);
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -96,6 +90,13 @@ export default function CarsPage() {
     setFilters((current) => ({ ...current, [key]: value }));
   };
 
+  const getOfferType = (car) => {
+    if (car.isForRent && car.isForSale) return t("admin.cars.offerRentSale");
+    if (car.isForRent) return t("admin.cars.offerRent");
+    if (car.isForSale) return t("admin.cars.offerSale");
+    return t("admin.cars.offerNone");
+  };
+
   const toggleStatus = async (car) => {
     const nextStatus = car.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
     try {
@@ -107,7 +108,7 @@ export default function CarsPage() {
   };
 
   const deleteCar = async (car) => {
-    if (!window.confirm(`Supprimer "${car.title}" ? Cette action est définitive.`)) return;
+    if (!window.confirm(t("admin.cars.confirmDelete"))) return;
     try {
       await apiFetch(`/admin/cars/${car.id}`, { method: "DELETE", token });
       setCars((currentCars) => currentCars.filter((item) => item.id !== car.id));
@@ -127,32 +128,32 @@ export default function CarsPage() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-700 dark:text-red-200">
-              Gestion voitures
+              {t("admin.cars.badge")}
             </p>
-            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">Inventaire location & vente</h2>
+            <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">{t("admin.cars.title")}</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-500 dark:text-gray-400">
-              Recherchez, filtrez et pilotez les voitures à louer, à vendre ou disponibles sur les deux offres.
+              {t("admin.cars.subtitle")}
             </p>
           </div>
           <Link
             to="/admin/cars/new"
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-600/25 transition hover:scale-[1.02]"
           >
-            <Plus className="h-5 w-5" /> Nouvelle voiture
+            <Plus className="h-5 w-5" /> {t("admin.cars.newCar")}
           </Link>
         </div>
 
         <div className="mt-7 grid gap-4 md:grid-cols-3">
           <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Actives</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.cars.active")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{activeCount}</p>
           </div>
           <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400">À louer</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.cars.forRent")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{rentCount}</p>
           </div>
           <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400">À vendre</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.cars.forSale")}</p>
             <p className="mt-2 text-3xl font-black text-gray-900 dark:text-white">{saleCount}</p>
           </div>
         </div>
@@ -164,7 +165,7 @@ export default function CarsPage() {
             <Search className="h-4 w-4" />
             <input
               className="w-full bg-transparent text-sm text-gray-900 dark:text-white outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400"
-              placeholder="Recherche marque, modèle, owner, plaque..."
+              placeholder={t("admin.cars.searchPh")}
               type="search"
               value={filters.search}
               onChange={(event) => handleFilterChange("search", event.target.value)}
@@ -172,19 +173,19 @@ export default function CarsPage() {
           </label>
 
           <select className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white" value={filters.status} onChange={(event) => handleFilterChange("status", event.target.value)}>
-            <option value="all">Tous les statuts</option>
+            <option value="all">{t("admin.cars.allStatuses")}</option>
             {Object.entries(carStatusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
           <select className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white" value={filters.city} onChange={(event) => handleFilterChange("city", event.target.value)}>
-            <option value="all">Toutes les villes</option>
+            <option value="all">{t("admin.cars.allCities")}</option>
             {uniqueValues("city").map((value) => <option key={value} value={value}>{value}</option>)}
           </select>
           <select className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white" value={filters.owner} onChange={(event) => handleFilterChange("owner", event.target.value)}>
-            <option value="all">Tous les owners</option>
+            <option value="all">{t("admin.cars.allOwners")}</option>
             {uniqueValues("owner").map((value) => <option key={value} value={value}>{value}</option>)}
           </select>
           <select className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white" value={filters.category} onChange={(event) => handleFilterChange("category", event.target.value)}>
-            <option value="all">Toutes catégories</option>
+            <option value="all">{t("admin.cars.allCategories")}</option>
             {uniqueValues("category").map((value) => <option key={value} value={value}>{categoryLabels[value] ?? value}</option>)}
           </select>
           <select className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white" value={filters.transmission} onChange={(event) => handleFilterChange("transmission", event.target.value)}>
@@ -192,18 +193,18 @@ export default function CarsPage() {
             {uniqueValues("transmission").map((value) => <option key={value} value={value}>{transmissionLabels[value] ?? value}</option>)}
           </select>
           <select className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white" value={filters.fuelType} onChange={(event) => handleFilterChange("fuelType", event.target.value)}>
-            <option value="all">Carburant</option>
+            <option value="all">{t("admin.cars.fuelType")}</option>
             {uniqueValues("fuelType").map((value) => <option key={value} value={value}>{fuelTypeLabels[value] ?? value}</option>)}
           </select>
           <select className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white" value={filters.rent} onChange={(event) => handleFilterChange("rent", event.target.value)}>
-            <option value="all">Location: tous</option>
-            <option value="yes">Location: oui</option>
-            <option value="no">Location: non</option>
+            <option value="all">{t("admin.cars.rentAll")}</option>
+            <option value="yes">{t("admin.cars.rentYes")}</option>
+            <option value="no">{t("admin.cars.rentNo")}</option>
           </select>
           <select className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950 px-4 py-3 text-sm text-gray-900 dark:text-white" value={filters.sale} onChange={(event) => handleFilterChange("sale", event.target.value)}>
-            <option value="all">Vente: tous</option>
-            <option value="yes">Vente: oui</option>
-            <option value="no">Vente: non</option>
+            <option value="all">{t("admin.cars.saleAll")}</option>
+            <option value="yes">{t("admin.cars.saleYes")}</option>
+            <option value="no">{t("admin.cars.saleNo")}</option>
           </select>
         </div>
       </section>
@@ -211,11 +212,11 @@ export default function CarsPage() {
       <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-4 shadow-2xl shadow-black/25 lg:p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Voitures ({filteredCars.length})</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Données en direct depuis ta base Neon.</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t("admin.cars.count")} ({filteredCars.length})</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.liveData")}</p>
           </div>
           <button className="rounded-2xl border border-black/10 dark:border-white/10 px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white" onClick={() => setFilters(initialFilters)}>
-            Reset filtres
+            {t("admin.resetFilters")}
           </button>
         </div>
 
@@ -226,26 +227,26 @@ export default function CarsPage() {
         )}
 
         {loading ? (
-          <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">Chargement des voitures...</p>
+          <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">{t("admin.cars.loading")}</p>
         ) : filteredCars.length === 0 ? (
           <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">
-            Aucune voiture trouvée. Clique sur « Nouvelle voiture » pour en ajouter une.
+            {t("admin.cars.empty")}
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1120px] text-left text-sm">
               <thead className="text-gray-500 dark:text-gray-400">
                 <tr className="border-b border-black/10 dark:border-white/10">
-                  <th className="py-4 font-semibold">Image</th>
-                  <th className="py-4 font-semibold">Marque</th>
-                  <th className="py-4 font-semibold">Modèle</th>
-                  <th className="py-4 font-semibold">Owner</th>
-                  <th className="py-4 font-semibold">Ville</th>
-                  <th className="py-4 font-semibold">Location/jour</th>
-                  <th className="py-4 font-semibold">Prix vente</th>
-                  <th className="py-4 font-semibold">Type</th>
-                  <th className="py-4 font-semibold">Statut</th>
-                  <th className="py-4 text-right font-semibold">Actions</th>
+                  <th className="py-4 font-semibold">{t("admin.th.image")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.brand")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.model")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.owner")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.city")}</th>
+                  <th className="py-4 font-semibold">{t("admin.cars.rentDay")}</th>
+                  <th className="py-4 font-semibold">{t("admin.cars.salePrice")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.type")}</th>
+                  <th className="py-4 font-semibold">{t("admin.th.status")}</th>
+                  <th className="py-4 text-right font-semibold">{t("admin.th.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -256,7 +257,7 @@ export default function CarsPage() {
                         <img src={car.images[0]} alt={car.title} className="h-14 w-20 rounded-2xl object-cover" />
                       ) : (
                         <div className="flex h-14 w-20 items-center justify-center rounded-2xl bg-black/10 text-xs font-bold text-gray-500 dark:bg-white/10 dark:text-gray-400">
-                          Aucune
+                          {t("admin.noImage")}
                         </div>
                       )}
                     </td>
@@ -275,16 +276,16 @@ export default function CarsPage() {
                     <td className="py-4"><CarStatusBadge status={car.status} /></td>
                     <td className="py-4">
                       <div className="flex justify-end gap-2">
-                        <Link to={`/admin/cars/${car.id}`} className="rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white" title="Voir">
+                        <Link to={`/admin/cars/${car.id}`} className="rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white" title={t("admin.details")}>
                           <Eye className="h-4 w-4" />
                         </Link>
-                        <Link to={`/admin/cars/${car.id}/edit`} className="rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-orange-500/30 hover:text-gray-900 dark:hover:text-white" title="Modifier">
+                        <Link to={`/admin/cars/${car.id}/edit`} className="rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-orange-500/30 hover:text-gray-900 dark:hover:text-white" title={t("admin.edit")}>
                           <Pencil className="h-4 w-4" />
                         </Link>
-                        <button className="rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-emerald-500/30 hover:text-gray-900 dark:hover:text-white" onClick={() => toggleStatus(car)} title={car.status === "ACTIVE" ? "Désactiver" : "Activer"}>
+                        <button className="rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-emerald-500/30 hover:text-gray-900 dark:hover:text-white" onClick={() => toggleStatus(car)}>
                           {car.status === "ACTIVE" ? <ShieldOff className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
                         </button>
-                        <button className="rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white" onClick={() => deleteCar(car)} title="Supprimer">
+                        <button className="rounded-xl border border-black/10 dark:border-white/10 p-2 text-gray-600 dark:text-gray-300 hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white" onClick={() => deleteCar(car)} title={t("admin.delete")}>
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>

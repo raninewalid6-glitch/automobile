@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarDays, CarFront, CheckCircle2, Flag, UserRound, WalletCards, XCircle } from "lucide-react";
 import { apiFetch } from "../../lib/api";
+import { useLang } from "../../lib/i18n";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import { bookingStatusLabels, bookingStatusStyles } from "../lib/bookingOptions";
 
@@ -61,6 +62,7 @@ export default function BookingDetailsPage() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { t } = useLang();
 
   useEffect(() => {
     apiFetch(`/admin/bookings/${id}`, { token })
@@ -81,17 +83,17 @@ export default function BookingDetailsPage() {
 
   if (loading) {
     return (
-      <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">Chargement de la réservation...</p>
+      <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">{t("admin.bookingDetail.loading")}</p>
     );
   }
 
   if (!booking) {
     return (
       <div className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-8 text-center shadow-2xl shadow-black/30">
-        <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-700 dark:text-red-300">Réservation introuvable</p>
-        <h2 className="mt-3 text-3xl font-black text-gray-900 dark:text-white">{error || `Aucune réservation ne correspond à ${id}`}</h2>
+        <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-700 dark:text-red-300">{t("admin.bookingDetail.notFound")}</p>
+        <h2 className="mt-3 text-3xl font-black text-gray-900 dark:text-white">{error || `${t("admin.bookingDetail.notFoundMsg")} ${id}`}</h2>
         <Link className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 font-bold text-white" to="/admin/bookings">
-          <ArrowLeft className="h-4 w-4" /> Retour aux réservations
+          <ArrowLeft className="h-4 w-4" /> {t("admin.bookingDetail.backToList")}
         </Link>
       </div>
     );
@@ -101,7 +103,7 @@ export default function BookingDetailsPage() {
     <div className="space-y-7">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Link className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400 transition hover:text-gray-900 dark:hover:text-white" to="/admin/bookings">
-          <ArrowLeft className="h-4 w-4" /> Retour aux réservations
+          <ArrowLeft className="h-4 w-4" /> {t("admin.bookingDetail.backToList")}
         </Link>
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill status={booking.status} />
@@ -110,7 +112,7 @@ export default function BookingDetailsPage() {
               className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-bold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20"
               onClick={() => updateStatus("CONFIRMED")}
             >
-              <CheckCircle2 className="h-4 w-4" /> Confirmer
+              <CheckCircle2 className="h-4 w-4" /> {t("admin.bookings.confirmBtn")}
             </button>
           )}
           {booking.status === "CONFIRMED" && (
@@ -118,7 +120,7 @@ export default function BookingDetailsPage() {
               className="inline-flex items-center gap-2 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm font-bold text-blue-700 dark:text-blue-300 hover:bg-blue-500/20"
               onClick={() => updateStatus("COMPLETED")}
             >
-              <Flag className="h-4 w-4" /> Marquer terminée
+              <Flag className="h-4 w-4" /> {t("admin.bookings.completeBtn")}
             </button>
           )}
           {booking.status !== "CANCELLED" && booking.status !== "COMPLETED" && (
@@ -126,7 +128,7 @@ export default function BookingDetailsPage() {
               className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-700 dark:text-red-300 hover:bg-red-500/20"
               onClick={() => updateStatus("CANCELLED")}
             >
-              <XCircle className="h-4 w-4" /> Annuler
+              <XCircle className="h-4 w-4" /> {t("admin.bookings.cancelBtn")}
             </button>
           )}
         </div>
@@ -142,41 +144,41 @@ export default function BookingDetailsPage() {
         <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="p-6 lg:p-8">
             <p className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-700 dark:text-red-200">
-              Détails réservation location
+              {t("admin.bookingDetail.badge")}
             </p>
             <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-4xl">
-              Réservation {booking.id.slice(0, 8).toUpperCase()}
+              {t("admin.bookingDetail.bookingTitle")} {booking.id.slice(0, 8).toUpperCase()}
             </h2>
             <p className="mt-4 text-sm leading-7 text-gray-500 dark:text-gray-400">
-              {booking.car.title} réservé par {booking.client.name} du {formatDate(booking.startDate)} au {formatDate(booking.endDate)}.
+              {booking.car.title} {t("admin.bookingDetail.reservedBy")} {booking.client.name} {t("admin.bookingDetail.fromDate")} {formatDate(booking.startDate)} {t("admin.bookingDetail.toDate")} {formatDate(booking.endDate)}.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
               <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Durée</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.bookingDetail.duration")}</p>
                 <p className="mt-2 text-2xl font-black text-gray-900 dark:text-white">{booking.days} jour{booking.days > 1 ? "s" : ""}</p>
               </div>
               <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.bookingDetail.total")}</p>
                 <p className="mt-2 text-2xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(booking.totalAmount)}</p>
               </div>
               <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-5">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Owner net</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t("admin.bookingDetail.ownerNet")}</p>
                 <p className="mt-2 text-2xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(booking.ownerAmount)}</p>
               </div>
             </div>
           </div>
           <div className="border-t border-black/10 dark:border-white/10 bg-gradient-to-br from-red-600/15 to-orange-500/10 p-6 lg:border-l lg:border-t-0 lg:p-8">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-700 dark:text-orange-200">Résumé</p>
+            <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-700 dark:text-orange-200">{t("admin.bookingDetail.summary")}</p>
             <div className="mt-5 space-y-4">
               {booking.car.image && (
                 <img src={booking.car.image} alt={booking.car.title} className="h-40 w-full rounded-3xl object-cover" />
               )}
               <div className="flex items-center justify-between gap-4 rounded-3xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/20 p-4">
-                <span className="text-gray-500 dark:text-gray-400">Statut</span>
+                <span className="text-gray-500 dark:text-gray-400">{t("admin.th.status")}</span>
                 <StatusPill status={booking.status} />
               </div>
               <div className="flex items-center justify-between gap-4 rounded-3xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/20 p-4">
-                <span className="text-gray-500 dark:text-gray-400">Créée le</span>
+                <span className="text-gray-500 dark:text-gray-400">{t("admin.bookingDetail.createdAt")}</span>
                 <span className="font-black text-gray-900 dark:text-white">{new Date(booking.createdAt).toLocaleDateString("fr-FR")}</span>
               </div>
             </div>
@@ -185,63 +187,63 @@ export default function BookingDetailsPage() {
       </section>
 
       <section className="grid gap-7 xl:grid-cols-3">
-        <DetailCard icon={UserRound} title="Client">
+        <DetailCard icon={UserRound} title={t("admin.bookingDetail.client")}>
           <DefinitionList items={[
-            ["Nom", booking.client.name],
-            ["Téléphone", booking.client.phone],
-            ["Email", booking.client.email],
+            [t("admin.bookingDetail.name"), booking.client.name],
+            [t("admin.bookingDetail.phone"), booking.client.phone],
+            [t("admin.bookingDetail.email"), booking.client.email],
           ]} />
         </DetailCard>
 
-        <DetailCard icon={CarFront} title="Voiture">
+        <DetailCard icon={CarFront} title={t("admin.bookingDetail.car")}>
           <DefinitionList items={[
-            ["Véhicule", booking.car.title],
-            ["Plaque", booking.car.plateNumber],
-            ["Ville", booking.car.city],
-            ["Prix / jour", currencyFormatter.format(booking.car.pricePerDay)],
+            [t("admin.bookingDetail.vehicle"), booking.car.title],
+            [t("admin.bookingDetail.plate"), booking.car.plateNumber],
+            [t("admin.carDetail.city"), booking.car.city],
+            [t("admin.bookingDetail.pricePerDay"), currencyFormatter.format(booking.car.pricePerDay)],
           ]} />
         </DetailCard>
 
-        <DetailCard icon={CalendarDays} title="Période">
+        <DetailCard icon={CalendarDays} title={t("admin.bookingDetail.period")}>
           <DefinitionList items={[
-            ["Début", formatDate(booking.startDate)],
-            ["Fin", formatDate(booking.endDate)],
-            ["Durée", `${booking.days} jour${booking.days > 1 ? "s" : ""}`],
-            ["Owner", booking.owner],
+            [t("admin.bookingDetail.startDate"), formatDate(booking.startDate)],
+            [t("admin.bookingDetail.endDate"), formatDate(booking.endDate)],
+            [t("admin.bookingDetail.duration"), `${booking.days} jour${booking.days > 1 ? "s" : ""}`],
+            [t("admin.th.owner"), booking.owner],
           ]} />
         </DetailCard>
       </section>
 
       <section className="grid gap-7 xl:grid-cols-[1fr_1fr]">
-        <DetailCard icon={CalendarDays} title="Détail du prix">
+        <DetailCard icon={CalendarDays} title={t("admin.bookingDetail.priceDetail")}>
           <div className="space-y-3">
             <div className="flex items-center justify-between rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] px-4 py-3">
-              <span className="text-gray-500 dark:text-gray-400">Prix / jour</span>
+              <span className="text-gray-500 dark:text-gray-400">{t("admin.bookingDetail.pricePerDay")}</span>
               <span className="font-black text-gray-900 dark:text-white">{currencyFormatter.format(booking.car.pricePerDay)}</span>
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] px-4 py-3">
-              <span className="text-gray-500 dark:text-gray-400">Nombre de jours</span>
+              <span className="text-gray-500 dark:text-gray-400">{t("admin.bookingDetail.numberOfDays")}</span>
               <span className="font-black text-gray-900 dark:text-white">{booking.days}</span>
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-orange-500/20 bg-orange-500/10 px-4 py-3">
-              <span className="font-bold text-orange-700 dark:text-orange-100">Total</span>
+              <span className="font-bold text-orange-700 dark:text-orange-100">{t("admin.bookingDetail.total")}</span>
               <span className="text-xl font-black text-gray-900 dark:text-white">{currencyFormatter.format(booking.totalAmount)}</span>
             </div>
           </div>
         </DetailCard>
 
-        <DetailCard icon={WalletCards} title="Répartition">
+        <DetailCard icon={WalletCards} title={t("admin.bookingDetail.breakdown")}>
           <div className="space-y-3">
             <div className="flex items-center justify-between rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] px-4 py-3">
-              <span className="text-gray-500 dark:text-gray-400">Taux commission</span>
+              <span className="text-gray-500 dark:text-gray-400">{t("admin.bookingDetail.commissionRate")}</span>
               <span className="font-black text-gray-900 dark:text-white">{booking.commissionRate}%</span>
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] px-4 py-3">
-              <span className="text-gray-500 dark:text-gray-400">Commission plateforme</span>
+              <span className="text-gray-500 dark:text-gray-400">{t("admin.bookingDetail.platformCommission")}</span>
               <span className="font-black text-red-700 dark:text-red-200">{currencyFormatter.format(booking.commissionAmount)}</span>
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] px-4 py-3">
-              <span className="text-gray-500 dark:text-gray-400">Reversement owner</span>
+              <span className="text-gray-500 dark:text-gray-400">{t("admin.bookingDetail.ownerPayout")}</span>
               <span className="font-black text-emerald-700 dark:text-emerald-200">{currencyFormatter.format(booking.ownerAmount)}</span>
             </div>
           </div>

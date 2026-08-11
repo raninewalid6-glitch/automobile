@@ -12,6 +12,7 @@ import Paiement from "../components/paiement";
 import CarDetailsModal from "../components/detailsmodal";
 import { useAuth } from "../context/userContext";
 import { useLang } from "../lib/i18n";
+import useScrollReveal from "../lib/useScrollReveal";
 
 export default function Cars() {
   const { isAuthenticated } = useAuth();
@@ -43,6 +44,7 @@ export default function Cars() {
 
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsCar, setDetailsCar] = useState(null);
+  const scrollRef = useScrollReveal();
 
   const filteredCars = useMemo(() => cars.filter((car) => {
     if (selectedCategory !== "all" && car.category !== selectedCategory) return false;
@@ -77,11 +79,11 @@ export default function Cars() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
+    <div ref={scrollRef} className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
       <Navbar setShowLoginModal={setShowLoginModal} />
 
       {/* Hero */}
-      <section className="relative pt-24 sm:pt-32 pb-8 sm:pb-12 px-4 sm:px-6">
+      <section className="relative pt-24 sm:pt-32 pb-8 sm:pb-12 px-4 sm:px-6 animate-on-scroll">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
             {t("cars.title1")}{" "}

@@ -41,7 +41,7 @@ function Card({ filteredCars, handleReserveClick, onShowDetails }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {paginatedCars.map((car) => (
             <div key={car.id} className="group relative">
-              <div className="bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-red-500/50 transition-all duration-300">
+              <div className="car-card bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
                 <div className="relative h-56 overflow-hidden">
                   <img
                     src={car.image}
@@ -137,7 +137,7 @@ function Card({ filteredCars, handleReserveClick, onShowDetails }) {
                       {car.available ? (
                         <button
                           onClick={() => handleReserveClick(car)}
-                          className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full text-sm font-semibold hover:shadow-lg hover:shadow-red-500/50 transition"
+                          className="btn-glow px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-full text-sm font-semibold"
                         >
                           {t("card.reserve")}
                         </button>

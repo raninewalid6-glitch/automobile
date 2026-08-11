@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import Footer from "../components/footer";
 import { useLang } from "../lib/i18n";
+import useScrollReveal from "../lib/useScrollReveal";
 
 export default function Contact() {
   const { t } = useLang();
+  const scrollRef = useScrollReveal();
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
 
@@ -17,8 +19,8 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
-      <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6">
+    <div ref={scrollRef} className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
+      <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6 animate-on-scroll">
         <div className="max-w-5xl mx-auto text-center mb-12">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
             {t("contact.title1")} <span className="text-red-500">{t("contact.title2")}</span>

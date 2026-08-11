@@ -10,6 +10,7 @@ import {
   categoryLabels,
   cities,
 } from "../lib/carOptions";
+import { useLang } from "../../lib/i18n";
 
 const defaultCar = {
   title: "",
@@ -61,6 +62,7 @@ export default function CarFormPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
+  const { t } = useLang();
 
   useEffect(() => {
     apiFetch("/admin/owners", { token })
@@ -154,7 +156,7 @@ export default function CarFormPage() {
 
   if (loading) {
     return (
-      <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">Chargement de la voiture...</p>
+      <p className="py-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400">{t("admin.carDetail.loading")}</p>
     );
   }
 
@@ -162,20 +164,20 @@ export default function CarFormPage() {
     <div className="space-y-7">
       <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/30 lg:p-8">
         <Link to="/admin/cars" className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-          <ArrowLeft className="h-4 w-4" /> Retour aux voitures
+          <ArrowLeft className="h-4 w-4" /> {t("admin.carForm.backToCars")}
         </Link>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="mb-3 inline-flex rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-sm font-bold text-orange-700 dark:text-orange-200">
-              Formulaire voiture
+              {t("admin.carForm.badge")}
             </p>
             <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white lg:text-5xl">
-              {isEdit ? "Modifier la voiture" : "Créer une voiture"}
+              {isEdit ? t("admin.carForm.editTitle") : t("admin.carForm.createTitle")}
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-500 dark:text-gray-400">
               {isEdit
-                ? "Les modifications sont enregistrées directement dans la base."
-                : "La voiture sera enregistrée dans la base et visible selon son statut."}
+                ? t("admin.carForm.editSub")
+                : t("admin.carForm.createSub")}
             </p>
           </div>
         </div>
@@ -183,68 +185,68 @@ export default function CarFormPage() {
 
       <form className="space-y-6" onSubmit={handleSubmit}>
         <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Identité & caractéristiques</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t("admin.carForm.identitySection")}</h3>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <Field label="Titre">
+            <Field label={t("admin.carForm.title")}>
               <input className={inputClass} value={form.title} placeholder="Toyota Land Cruiser VX" onChange={(event) => updateField("title", event.target.value)} required />
             </Field>
-            <Field label="Marque">
+            <Field label={t("admin.carForm.brand")}>
               <input className={inputClass} value={form.brand} placeholder="Toyota" onChange={(event) => updateField("brand", event.target.value)} required />
             </Field>
-            <Field label="Modèle">
+            <Field label={t("admin.carForm.model")}>
               <input className={inputClass} value={form.model} placeholder="Land Cruiser" onChange={(event) => updateField("model", event.target.value)} required />
             </Field>
-            <Field label="Année">
+            <Field label={t("admin.carForm.year")}>
               <input className={inputClass} type="number" value={form.year} onChange={(event) => updateField("year", Number(event.target.value))} required />
             </Field>
-            <Field label="Transmission">
+            <Field label={t("admin.carForm.transmission")}>
               <select className={inputClass} value={form.transmission} onChange={(event) => updateField("transmission", event.target.value)}>
                 {Object.entries(transmissionLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
             </Field>
-            <Field label="Carburant">
+            <Field label={t("admin.carForm.fuel")}>
               <select className={inputClass} value={form.fuelType} onChange={(event) => updateField("fuelType", event.target.value)}>
                 {Object.entries(fuelTypeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
             </Field>
-            <Field label="Catégorie">
+            <Field label={t("admin.carForm.category")}>
               <select className={inputClass} value={form.category} onChange={(event) => updateField("category", event.target.value)}>
                 {Object.entries(categoryLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
             </Field>
-            <Field label="Places">
+            <Field label={t("admin.carForm.seats")}>
               <input className={inputClass} type="number" min="1" value={form.seats} onChange={(event) => updateField("seats", Number(event.target.value))} />
             </Field>
-            <Field label="Portes">
+            <Field label={t("admin.carForm.doors")}>
               <input className={inputClass} type="number" min="1" value={form.doors} onChange={(event) => updateField("doors", Number(event.target.value))} />
             </Field>
-            <Field label="Couleur">
+            <Field label={t("admin.carForm.color")}>
               <input className={inputClass} value={form.color} placeholder="Blanc nacré" onChange={(event) => updateField("color", event.target.value)} />
             </Field>
-            <Field label="Plaque">
+            <Field label={t("admin.carForm.plate")}>
               <input className={inputClass} value={form.plateNumber} placeholder="DJ-0000-A" onChange={(event) => updateField("plateNumber", event.target.value)} required />
             </Field>
           </div>
           <label className="mt-5 flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
             <input type="checkbox" checked={form.airConditioning} onChange={(event) => updateField("airConditioning", event.target.checked)} />
-            Climatisation disponible
+            {t("admin.carForm.acAvailable")}
           </label>
         </section>
 
         <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Localisation & propriétaire</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t("admin.carForm.locationSection")}</h3>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <Field label="Ville">
+            <Field label={t("admin.carForm.city")}>
               <select className={inputClass} value={form.city} onChange={(event) => updateField("city", event.target.value)}>
                 {cities.map((value) => <option key={value}>{value}</option>)}
               </select>
             </Field>
-            <Field label="Adresse">
+            <Field label={t("admin.carForm.address")}>
               <input className={inputClass} value={form.address} placeholder="Quartier, rue, point de retrait" onChange={(event) => updateField("address", event.target.value)} />
             </Field>
-            <Field label="Propriétaire">
+            <Field label={t("admin.carForm.owner")}>
               <select className={inputClass} value={form.ownerId ?? ""} onChange={(event) => updateField("ownerId", event.target.value || undefined)}>
-                <option value="">Moi (compte connecté)</option>
+                <option value="">{t("admin.carForm.selfOwner")}</option>
                 {owners.map((owner) => <option key={owner.id} value={owner.id}>{owner.name}</option>)}
               </select>
             </Field>
@@ -252,44 +254,44 @@ export default function CarFormPage() {
         </section>
 
         <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Publication, pricing & garanties</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t("admin.carForm.pricingSection")}</h3>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <Field label="Statut">
+            <Field label={t("admin.carForm.status")}>
               <select className={inputClass} value={form.status} onChange={(event) => updateField("status", event.target.value)}>
                 {Object.entries(carStatusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
             </Field>
-            <Field label="Prix location / jour">
+            <Field label={t("admin.carForm.rentPricePerDay")}>
               <input className={inputClass} type="number" min="0" value={form.rentPricePerDay} onChange={(event) => updateField("rentPricePerDay", Number(event.target.value))} />
             </Field>
-            <Field label="Prix de vente">
+            <Field label={t("admin.carForm.salePrice")}>
               <input className={inputClass} type="number" min="0" value={form.salePrice} onChange={(event) => updateField("salePrice", Number(event.target.value))} />
             </Field>
-            <Field label="Caution">
+            <Field label={t("admin.carForm.deposit")}>
               <input className={inputClass} type="number" min="0" value={form.depositAmount} onChange={(event) => updateField("depositAmount", Number(event.target.value))} />
             </Field>
-            <Field label="Kilométrage">
+            <Field label={t("admin.carForm.mileage")}>
               <input className={inputClass} type="number" min="0" value={form.mileage} onChange={(event) => updateField("mileage", Number(event.target.value))} />
             </Field>
-            <Field label="Assurance">
+            <Field label={t("admin.carForm.insurance")}>
               <input className={inputClass} value={form.insurance} placeholder="Tous risques - expire le..." onChange={(event) => updateField("insurance", event.target.value)} />
             </Field>
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             <label className="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
               <input type="checkbox" checked={form.isForRent} onChange={(event) => updateField("isForRent", event.target.checked)} />
-              Disponible à la location
+              {t("admin.carForm.availableRent")}
             </label>
             <label className="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
               <input type="checkbox" checked={form.isForSale} onChange={(event) => updateField("isForSale", event.target.checked)} />
-              Disponible à la vente
+              {t("admin.carForm.availableSale")}
             </label>
           </div>
         </section>
 
         <section className="rounded-[2rem] border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-950/80 p-6 shadow-2xl shadow-black/25">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Photos</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t("admin.carForm.photos")}</h3>
             <div className="flex flex-wrap gap-2">
               <input
                 ref={fileInputRef}
@@ -305,15 +307,15 @@ export default function CarFormPage() {
                 onClick={() => fileInputRef.current?.click()}
                 className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-red-600/25 disabled:opacity-60"
               >
-                <Upload className="h-4 w-4" /> {uploading ? "Envoi en cours..." : "Choisir des fichiers"}
+                <Upload className="h-4 w-4" /> {uploading ? t("admin.carForm.uploading") : t("admin.carForm.chooseFiles")}
               </button>
               <button type="button" className="inline-flex items-center gap-2 rounded-2xl border border-black/10 dark:border-white/10 px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={addImage}>
-                <ImagePlus className="h-4 w-4" /> Ajouter une URL
+                <ImagePlus className="h-4 w-4" /> {t("admin.carForm.addUrl")}
               </button>
             </div>
           </div>
           <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-            Choisis des photos depuis ton ordinateur ou ton téléphone (JPEG, PNG, WebP — 4 Mo max par photo), ou colle une adresse d'image.
+            {t("admin.carForm.photosHelp")}
           </p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {form.images.map((image, index) => {
@@ -327,7 +329,7 @@ export default function CarFormPage() {
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        title="Retirer cette photo"
+                        title={t("admin.carForm.removePhoto")}
                         className="shrink-0 rounded-xl border border-red-500/30 p-2.5 text-red-600 dark:text-red-300 hover:bg-red-500/10"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -347,7 +349,7 @@ export default function CarFormPage() {
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
-                          title="Retirer cette photo"
+                          title={t("admin.carForm.removePhoto")}
                           className="absolute right-2 top-2 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition hover:bg-red-600"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -364,13 +366,13 @@ export default function CarFormPage() {
         {error && <p className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-700 dark:text-red-300">{error}</p>}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <Link to="/admin/cars" className="rounded-2xl border border-black/10 dark:border-white/10 px-5 py-3 text-center text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Annuler</Link>
+          <Link to="/admin/cars" className="rounded-2xl border border-black/10 dark:border-white/10 px-5 py-3 text-center text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">{t("admin.carForm.cancel")}</Link>
           <button
             type="submit"
             disabled={saving}
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-600/25 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <Save className="h-5 w-5" /> {saving ? "Enregistrement..." : "Enregistrer"}
+            <Save className="h-5 w-5" /> {saving ? t("admin.carForm.saving") : t("admin.carForm.save")}
           </button>
         </div>
       </form>
