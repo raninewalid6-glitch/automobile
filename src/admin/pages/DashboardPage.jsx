@@ -5,6 +5,7 @@ import { apiFetch } from "../../lib/api";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import { bookingStatusLabels, bookingStatusStyles } from "../lib/bookingOptions";
 import { useLang } from "../../lib/i18n";
+import useScrollReveal from "../../lib/useScrollReveal";
 
 const currencyFormatter = {
   format: (value) => `${new Intl.NumberFormat("fr-FR").format(value ?? 0)} FDJ`,

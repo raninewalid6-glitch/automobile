@@ -1,5 +1,5 @@
 import React from "react";
-import { Bell, Menu, Search, ShieldCheck } from "lucide-react";
+import { Bell, Globe, Menu, Search, ShieldCheck } from "lucide-react";
 import ThemeToggle from "../../components/ThemeToggle";
 import { useLang, languages } from "../../lib/i18n";
 
@@ -26,7 +26,19 @@ export default function AdminTopbar({ onMobileMenuOpen }) {
           </div>
         </div>
 
-        <div className="md:hidden">
+        <div className="flex items-center gap-2 sm:gap-3 md:hidden">
+          <label className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black/50 px-2 py-1.5 text-gray-700 dark:text-gray-300 transition-colors duration-300">
+            <Globe className="w-4 h-4 shrink-0 text-red-500" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              className="bg-transparent text-xs font-semibold outline-none cursor-pointer dark:[&>option]:bg-black"
+            >
+              {languages.map((l) => (
+                <option key={l.code} value={l.code}>{l.label}</option>
+              ))}
+            </select>
+          </label>
           <ThemeToggle />
         </div>
 
@@ -42,15 +54,18 @@ export default function AdminTopbar({ onMobileMenuOpen }) {
           <button className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-3 text-gray-600 dark:text-gray-300 transition hover:border-red-500/30 hover:text-gray-900 dark:hover:text-white">
             <Bell className="h-5 w-5" />
           </button>
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value)}
-            className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-3 text-xs font-semibold text-gray-700 dark:text-gray-200 outline-none transition hover:border-red-500/30"
-          >
-            {languages.map((l) => (
-              <option key={l.code} value={l.code}>{l.label}</option>
-            ))}
-          </select>
+          <label className="flex items-center gap-1.5 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-2 text-gray-700 dark:text-gray-300 transition hover:border-red-500/30">
+            <Globe className="w-4 h-4 shrink-0 text-red-500" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              className="bg-transparent text-xs font-semibold outline-none cursor-pointer dark:[&>option]:bg-black"
+            >
+              {languages.map((l) => (
+                <option key={l.code} value={l.code}>{l.label}</option>
+              ))}
+            </select>
+          </label>
           <ThemeToggle />
           <div className="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-red-600 to-orange-500 text-sm font-black text-white shadow-lg shadow-red-600/25">D</div>
